@@ -1,0 +1,82 @@
+<div class="container-fluid" *ngIf="productsInCart.length !== 0">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>Your Cart</h3>
+        </div>
+        <div class="card-body cart">
+          <span>
+            <div class="float-end">
+              <button class="float-right btn btn-warning" type="button" (click)="clearCart()">
+                Clear Cart
+              </button>
+            </div>
+
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Product Name</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Unit Price</th>
+                  <th scope="col">Total Price</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody class="table-striped">
+                <tr *ngFor="let product of productsInCart; let i = index">
+                  <td scope="row">
+                    <img src="../../assets/images/{{product.itemId}}.jpg"  class="img-fluid mb-4 mr-3" style="width: 100px;"/>
+                    {{ product.name }}</td>
+                  <td scope="row">
+                    <i class="fa fa-minus" (click)="removeOneCount(product, i)"></i>&nbsp;
+                    <span><input type="text" maxlength="3"
+                        style="width: 25px; text-align: center" [value]="product.orderQuantity" /></span>&nbsp;
+                    <i class="fa fa-plus" (click)="addOneCount(product, i)"></i>
+                  </td>
+                  <td scope="row">{{ product.price | currency }}</td>
+                  <td scope="row">
+                    {{ product.price * product.orderQuantity | currency }}
+                    &nbsp;&nbsp;
+                  </td>
+                  <td scope="row">
+                    <i class="fa fa-times" (click)="deleteProduct(product, i)"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="3">Total</td>
+                  <td id="right">{{ getTotalCartValue() | currency }}</td>
+                  <td id="right"></td>
+                </tr>
+              </tbody>
+            </table>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<span *ngIf="productsInCart.length === 0">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3>Your Cart</h3>
+          </div>
+          <div class="card-body cart">
+            <div class="col-sm-12 empty-cart-cls text-center">
+              <img src="../../assets/images/sad-cat.jpg" class="img-fluid mb-4 mr-3" />
+              <h3><strong>Your Cart is Empty</strong></h3>
+              <h4>Add something to make me happy :)</h4>
+
+              <a routerLink="/products" class="btn btn-primary cart-btn-transform m-3" data-abc="true">continue
+                shopping</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</span>

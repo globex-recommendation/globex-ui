@@ -1,0 +1,165 @@
+
+/* You can add global styles to this file, and also import other style files */
+
+.tab-content {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 1;
+}
+
+.nav-tabs {
+  margin-bottom: 0;
+}
+
+
+.media img {
+	height: 100px;
+}
+
+.p-t-8 {
+	  padding-top: 8px !important;
+}
+
+[ng-click],
+[data-ng-click],
+[x-ng-click] {
+	cursor: pointer;
+}
+
+.rating{
+	color: #a9a9a9;
+	margin: 0;
+	padding: 0;
+}
+
+ul.rating {
+	display: inline-block;
+}
+
+.rating li {
+	list-style-type: none;
+	display: inline-block;
+	padding: 1px;
+	text-align: center;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.rating .rateable li:hover {
+	color: gold;
+}
+.rating .filled {
+	color: #39a5dc;
+}
+
+.center {
+	margin: 0 auto;
+	width: 80%;
+}
+
+
+.card-pf {
+  background: #fff;
+  border-top: 2px solid transparent;
+  box-shadow: 0 1px 1px rgb(3 3 3 / 18%);
+  margin: 0 10px 20px;
+  /* padding: 0 20px; */
+}
+.card-pf-heading {
+  border-bottom: 1px solid #d1d1d1;
+  margin: 0 -20px 20px;
+  padding: 0 20px;
+}
+
+.card-pf-title {
+  font-family: "Open Sans", Helvetica, Arial, sans-serif !important;
+  font-size: 16px;
+  border-bottom: 1px solid #d1d1d1;
+  font-weight: 400;
+  margin: 20px 0;
+  padding: 0 20px 10px 10px;
+
+}
+
+.card-pf.card-pf-accented {
+  border-top-color: #39a5dc;
+}
+
+
+body {
+  font-family: "Open Sans",Helvetica,Arial,sans-serif;
+  font-size: 12px;
+  line-height: 1.66666667;
+  color: #363636;
+}
+
+.h1, h1 {
+  font-size: 24px;
+}
+
+.label-primary {
+  background-color: #39a5dc;
+}
+.label, .list-group-item-heading, label {
+  font-weight: 600;
+}
+.label {
+  border-radius: 0;
+  font-size: 100%;
+}
+
+.label {
+  display: inline;
+  padding: 0.2em 0.6em 0.3em;
+  vertical-align: baseline;
+}
+
+.btn {
+  margin-bottom: 0;
+  font-weight: 600;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 2px 6px;
+  font-size: 12px;
+  line-height: 1.66666667;
+  border-radius: 3px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.userLikeBtn {
+  text-align: right;
+  cursor:pointer;
+  padding-right: 10px;
+}
+.userLikeOn {
+  color: rgb(194, 39, 65);
+  font-size: 30px!important;
+}
+.userLikeOff {
+  font-size: 30px!important;
+}
+
+.btn-default {
+  background-color: #f1f1f1;
+
+  border-color: #bbb;
+  color: #4d5258;
+}
+
+
+.card-pf-body {
+  margin: 20px 0 0;
+  padding: 0 0 10px;
+}
+
+.card-pf-heading {
+  border-bottom: 1px solid #d1d1d1;
+  margin: 0 -20px 20px;
+  padding: 0 20px;
+}

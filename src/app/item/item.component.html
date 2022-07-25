@@ -1,0 +1,47 @@
+  <div class="col card-pf card-pf-accented" >
+	  
+	<div class="row">
+			<div class="item">
+		<div>
+		<div>
+			<h2 routerLink="/product-detail/{{product.itemId}}"   style="text-align: left; cursor:pointer"  class="card-pf-title">{{product.name}} &nbsp; </h2>
+		</div>
+		
+		<div class="userLikeBtn">
+			<i *ngIf="!product.liked" class="float-right fa fa-heart-o userLikeOff"  (click)="saveUserLike($event, product)" ></i>
+			<i *ngIf="product.liked" class="float-right fa fa-heart userLikeOn" (click)="removeProductLike($event, product)" ></i>
+		</div>
+
+		</div>
+
+			<div class="row ">
+				<div class="col-xs-12 align-items-center">
+					
+					<img class="bd-placeholder-img card-img-top" src="../../assets/images/{{product.itemId}}.jpg" class="img-fluid" alt="{{product.name}}" 
+					style="cursor:pointer" width="100%" height="200" 
+					routerLink="/product-detail/{{product.itemId}}" role="img" aria-label="Placeholder: Thumbnail" 
+					preserveAspectRatio="xMidYMid slice" focusable="false">
+				</div>
+			</div>
+
+			<div class="row card-pf-body">
+				<div class="col-xs-12">
+					<div>
+						<span>
+							<h1>{{product.price | currency}}</h1>
+							<div *ngIf="product.quantity > 0" style="float:right">
+							<label title="{{product.quantity}} in our store in {{product.location}}" class="label label-{{product.quantity < 15 ? 'warning' : 'primary'}}">
+								{{product.quantity}} left!
+							</label>
+							</div>
+						</span>
+
+						<div *ngIf="product.quantity <= 0" style="float:right"><span class="fa fa-warning fa-lg"></span>&nbsp;Inventory unavailable</div>
+					</div>
+
+				<button (click)="addToCart($event, product)"  type="button" class="btn btn-sm btn-secondary float-start">Add To Cart</button>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>

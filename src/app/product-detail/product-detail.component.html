@@ -1,0 +1,27 @@
+
+<div class="card" *ngIf="currentProduct">
+        <div class="wrapper row">
+            <div class="col-md-6">
+                <div class="tab-content">
+                    <img src="../../assets/images/{{currentProduct.itemId}}.jpg" />
+                </div>
+            </div>
+            <div class="\ col-md-6">
+                <div class="userLikeBtn">
+                    <i *ngIf="!isProductLiked" class="float-right fa fa-heart-o userLikeOff"  (click)="saveUserLike($event, currentProduct)" ></i>
+                    <i *ngIf="isProductLiked" class="float-right fa fa-heart userLikeOn" (click)="removeProductLike($event, currentProduct)" ></i>
+                  </div>
+                <h3 class="product-title">{{currentProduct.name}}</h3>
+                <br><br>
+                <h5 class="product-description">{{currentProduct.desc}}</h5>
+                <br><br><br>
+                <h4 class="price">Price: <span>{{currentProduct.price | currency}}</span></h4>
+                <div class="action">
+                    <button (click)="addToCart($event, currentProduct)"   class="add-to-cart btn btn-default" type="button">add to cart</button>
+                
+                </div>
+            </div>
+        </div>
+</div>
+
+

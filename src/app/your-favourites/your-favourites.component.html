@@ -1,0 +1,27 @@
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" routerLink="/products">
+            <span *ngIf="products">Showing {{products.length}} products &nbsp;&nbsp;</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- {{products | json}} -->
+
+<div class="card">
+  <div class="card-body">
+    <div class="container">
+      <div class="row row-cols-4">
+        <app-item *ngFor="let product of products" [product]="product">
+        </app-item>
+      </div>
+    </div>
+
+  </div>
+</div>
