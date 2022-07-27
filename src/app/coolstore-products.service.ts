@@ -1,12 +1,11 @@
 import { Injectable } from "@angular/core";
 import { LogService } from "./log.service";
-import axios, { AxiosError } from "axios";
-import { PaginatedProductsList } from "./models/product.model";
-import { Observable, Subject } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import { HandleError, HttpErrorHandler } from './http-error-handler.service';
 import serverEnvConfig from "client.env.config";
+import { CheckoutPayload } from "./models/checkout_payload.model";
 
 
 @Injectable()
@@ -17,6 +16,8 @@ export class CoolStoreProductsService {
   paginationLimit = serverEnvConfig.ANGULR_API_GETPAGINATEDPRODUCTS_LIMIT; //number of products per page
   recommendedProductsListUrl = serverEnvConfig.ANGULR_API_GETRECOMMENDEDPRODUCTS;  // URL to web api
   getProductDetailsByIdsUrl = serverEnvConfig.ANGULR_API_GETPRODUCTDETAILS_FOR_IDS;  // URL to web api
+  submitOrderUrl = serverEnvConfig.ANGULR_API_SUBMITORDER;  // URL to web api
+
   private handleError: HandleError;
   private logService: LogService;
   http: HttpClient;
@@ -64,8 +65,16 @@ export class CoolStoreProductsService {
       );
   }
 
-  
+  /** submitOrder  from the server */
+  placeOrder(orderData): Observable<any> {
+    console.log("[placeOrder] this.checkout_payload", orderData);
+    return this.http.post<CheckoutPayload>(this.submitOrderUrl, orderData)
+    .pipe(
+      catchError(this.handleError('userActivityObj', orderData))
+    );
 
+
+  }
   
 
 }

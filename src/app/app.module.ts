@@ -25,6 +25,7 @@ import { AppConfigService } from './providers/app-config.service'
 import { CoolstoreCookiesService } from './coolstore-cookies.service';
 import { YourFavouritesComponent } from './your-favourites/your-favourites.component';
 import { CartService } from './cart.service';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 
 export function initConfig(appConfig: AppConfigService) {
@@ -37,6 +38,7 @@ const routes = [
   {path: 'cart', component: CartComponent},
   {path: 'product-detail/:itemId', component: ProductDetailComponent},
   {path: 'myFavourites', component: YourFavouritesComponent},  
+  {path: 'checkout', component: CheckoutComponent},  
   {path: '**', redirectTo: '/home'}
 
 ];
@@ -52,7 +54,8 @@ const routes = [
     ProductDetailComponent,
     ProductRecommendationComponent,
     HomeComponent,
-    YourFavouritesComponent
+    YourFavouritesComponent,
+    CheckoutComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

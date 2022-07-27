@@ -29,6 +29,7 @@ export function app(): express.Express {
   const ANGULR_API_GETRECOMMENDEDPRODUCTS =  '/api/getRecommendedProducts'
   const ANGULR_API_TRACKUSERACTIVITY = '/api/trackUserActivity'
   const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds'
+  const ANGULR_API_PLACEORDER = '/api/placeOrder'
 
 
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
@@ -46,6 +47,8 @@ export function app(): express.Express {
   const API_GET_PAGINATED_PRODUCTS = get('API_GET_PAGINATED_PRODUCTS').default('https://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/products').asString();  
   const API_GET_PRODUCT_DETAILS_BY_IDS = get('API_GET_PRODUCT_DETAILS_BY_IDS').default('https://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/product/list/').asString();  
   const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('https://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
+  const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('https://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
+
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();
 
@@ -153,7 +156,7 @@ export function app(): express.Express {
   // Save user activity
   
   server.post(ANGULR_API_TRACKUSERACTIVITY, (req, res) => {
-    //console.log('SSR::::' + ANGULR_API_TRACKUSERACTIVITY+ ' invoked');
+    console.log('SSR::::' + ANGULR_API_TRACKUSERACTIVITY+ ' invoked');
     var url = API_TRACK_USERACTIVITY;
     axios
       .post(url, req.body)
@@ -172,6 +175,34 @@ export function app(): express.Express {
         }
       );
   });
+
+   // Place Order API call
+  
+   server.post(ANGULR_API_PLACEORDER, (req, res) => {
+    var url = API_TRACK_PLACEORDER; 
+    console.log('SSR::::' + ANGULR_API_PLACEORDER+ ' invoked');
+    axios
+      .post(url, req.body)
+      .then(response => {
+        res.send(response.data);
+      })
+      .catch(
+        (reason: AxiosError<{additionalInfo:string}>) => {
+          /* if (reason.response!.status === 400) {
+            // Handle 400
+            res.send("error:reason.response!.status " + reason.response!.status);
+          } else {
+            res.send("error:reason.response!.status " + reason.response!.status);
+          }
+ */          res.send(reason);
+          console.log("ANGULR_API_TRACKUSERACTIVITY AxiosError", reason.message)
+        }
+      );
+  });
+
+  
+
+
 //API Setup END
 
 

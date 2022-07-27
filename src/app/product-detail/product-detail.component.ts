@@ -3,7 +3,6 @@ import { CookieService } from 'ngx-cookie-service';
 import { CartService } from '../cart.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { CoolStoreProductsService } from '../coolstore-products.service';
-import { PaginatedProductsList } from '../models/product.model';
 import { ActivatedRoute } from '@angular/router';
 
 
