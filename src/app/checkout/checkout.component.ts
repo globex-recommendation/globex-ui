@@ -20,7 +20,7 @@ export class CheckoutComponent implements OnInit {
   billingAndShippingSame=false;
   checkout_payload = new CheckoutPayload();    
   order;
-  datemodel;
+  orderSubmissionError = false;
 
   constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService, 
     coolstoreCookiesService: CoolstoreCookiesService, cartService:CartService) {
@@ -66,16 +66,21 @@ export class CheckoutComponent implements OnInit {
 
   placeOrder() {
 
-
+    this.orderSubmissionError = false;
+    //TO-DO
     this.checkout_payload.user_info.customer_id = this.checkout_payload.user_info.username;
     this.checkout_payload.user_info.userId = this.checkout_payload.user_info.username;
     this.checkout_payload.currency.currency = "USD";
-    //this.checkout_payload.payment.card_expiry_date = this.checkout_payload.payment.card_expiry_date.concat
 
+    
     this.coolStoreService.placeOrder(this.checkout_payload).subscribe(response =>         {
       console.log("submitOrderPost", response);
-      this.order = {newOrderPlaced: true, orderId: response.order_id};
-      this.clearCart();
+      if(response.status=='CONFIRMED') {
+        this.order = {newOrderPlaced: true, orderId: response.order_id};
+        this.clearCart();
+      } else {
+        this.orderSubmissionError = true;
+      }
     });
   }
   
