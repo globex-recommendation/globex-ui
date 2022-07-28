@@ -31,6 +31,9 @@ export class CheckoutComponent implements OnInit {
     this.getProductsInCart();
     
   }
+  submitted = false;
+
+  onSubmit() { this.submitted = true; }
 
 
   ngOnInit(): void {
@@ -40,6 +43,7 @@ export class CheckoutComponent implements OnInit {
   getProductsInCart() {
     this.productsInCart = this.cartService.getProductsInCart();
     this.setupLineItems();
+
   }
 
   getTotalCartValue() {
@@ -54,13 +58,20 @@ export class CheckoutComponent implements OnInit {
     console.log("this.productsInCart", this.productsInCart)
     this.productsInCart.forEach(product => {
       this.checkout_payload.line_items.push(
-        new LineItem(product.itemId, product.price, product.itemId, product.quantity, product.itemId)
+        new LineItem(product.itemId, product.price, product.orderQuantity, product.itemId)
       )  
     });
     console.log("this.checkout_payload.line_items", this.checkout_payload.line_items);
   }
 
   placeOrder() {
+
+
+    this.checkout_payload.user_info.customer_id = this.checkout_payload.user_info.username;
+    this.checkout_payload.user_info.userId = this.checkout_payload.user_info.username;
+    this.checkout_payload.currency.currency = "USD";
+    //this.checkout_payload.payment.card_expiry_date = this.checkout_payload.payment.card_expiry_date.concat
+
     this.coolStoreService.placeOrder(this.checkout_payload).subscribe(response =>         {
       console.log("submitOrderPost", response);
       this.order = {newOrderPlaced: true, orderId: response.order_id};

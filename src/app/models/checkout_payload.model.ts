@@ -32,33 +32,27 @@ export class Promotion {
 }
 
 export class BillingAddress {
+    first_name: string;
+    last_name: string;
     address1: string;
     address2: string;
     city: string
     country: string;
-    first_name: string;
-    id: number;
-    last_name: string;
-    phone: string;
-    province: string;
+    state: string;
     zip: string;
-    province_code: string;
-    country_code: string
+    phone: string;
 }
 
 export class ShippingAddress {
+    first_name: string;
+    last_name: string;
     address1: string;
     address2: string;
     city: string
+    state: string;
     country: string;
-    first_name: string;
-    id: number;
-    last_name: string;
-    phone: string;
-    province: string;
     zip: string;
-    province_code: string;
-    country_code: string;
+    phone: string;
     constructor() {
 
     }
@@ -67,7 +61,7 @@ export class ShippingAddress {
 export class UserInfo {
     userId: string;
     email: string;
-    customer_id: number;
+    customer_id: string;
     username: string;
     constructor() {
 
@@ -85,7 +79,7 @@ export class Payment {
     mode: string;
     credit_card_number: string;
     card_expiry_date: string;
-    card_cvv: number;
+    card_cvv: string;
     name_on_card: string;
     constructor() {
 
@@ -93,15 +87,13 @@ export class Payment {
 }
 
 export class LineItem {
-    id: string;
     price: string;
     product_id: string;
     quantity: number;
     sku: string;
-    constructor(id: string, price: string, product_id: string, quantity: number, sku: string) {
-        this.id = id;
-        this.price = this.price;
+    constructor(product_id: string, price: string, quantity: number, sku: string) {
         this.product_id = product_id;
+        this.price = price;
         this.quantity = quantity;
         this.sku = sku;
 
