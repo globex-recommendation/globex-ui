@@ -1,0 +1,6 @@
+node_modules
+dist
+.angular%
+.angular/*
+src/app/app.component.ts
+.DS_Store
