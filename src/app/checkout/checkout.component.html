@@ -46,7 +46,7 @@
 
 
 <div *ngIf="productsInCart.length !== 0">
-
+  
 <div class="container-fluid">
 
     <div class="card">
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="row g-5">
           <div class="col-md-5 col-lg-4 order-md-last">
-            <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="d-flex justify-content-between align-items-center mb-3 mt-10">
               <span class="text-primary">Your cart</span>
               <span class="badge bg-primary rounded-pill">{{getTotalProductsQuantityInCart()}}</span>
             </h4>
@@ -73,8 +73,7 @@
                 <strong>{{ getTotalCartValue() | currency }}</strong>
               </li>
               <li class="list-group-item d-flex justify-content-between" *ngIf="coolstoreCookiesService.user.isUserLoggedIn">
-                <br><br><br>
-              <button class="w-100 btn btn-success btn-lg" [disabled]="!heroForm.form.valid" type="submit"
+              <button class="w-100 btn btn-success btn-lg mt-10" [disabled]="!heroForm.form.valid" type="submit"
                  (click)="placeOrder()">
                 Submit Order
               </button>
@@ -83,12 +82,14 @@
           </div>
           <div class="col-md-7 col-lg-8">
             <form (ngSubmit)="onSubmit()" #heroForm="ngForm">
-
-            <h4 class="mb-3">Billing address</h4>
+            <div>
+                <h4 class="mb-3">Billing address</h4> 
+                <button class="btn btn-warning btn-lg btn-autofill"  (click)="autofill()" >Autofill form</button>
+              </div>
               <div class="row g-3">
                 <div class="col-sm-6">
                   <label for="firstName" class="form-label">First name</label>
-                    <input type="text" class="form-control" id="name"
+                    <input type="text" class="form-control" id="bill.name"
                        [(ngModel)]="checkout_payload.billing_address.first_name" 
                        required name="checkout_payload.billing_address.first_name" #name="ngModel"/>
                   <!-- <div [hidden]="name.valid || name.pristine" class="error"> Name is required </div> -->
@@ -96,42 +97,28 @@
 
                 <div class="col-sm-6">
                   <label for="lastName" class="form-label">Last name</label>
-                  <input type="text" class="form-control" id="lastname" placeholder=""  [(ngModel)]="checkout_payload.billing_address.last_name" 
+                  <input type="text" class="form-control" id="bill.lastname" placeholder=""  [(ngModel)]="checkout_payload.billing_address.last_name" 
                   required name="checkout_payload.billing_address.last_name" #lastname="ngModel"/>
                   <!-- <div [hidden]="lastname.valid || lastname.pristine" class="error"> Last Name is required </div> -->
                 </div>
 
                 <div class="col-sm-6">
                   <label for="phone" class="form-label">Phone number</label>
-                  <input type="text" class="form-control" id="phone1" placeholder=""  [(ngModel)]="checkout_payload.billing_address.phone" 
+                  <input type="text" class="form-control" id="bill.phone1" placeholder=""  [(ngModel)]="checkout_payload.billing_address.phone" 
                   required name="checkout_payload.billing_address.phone" #phone1="ngModel"/>
                   <!-- <div [hidden]="phone1.valid || phone1.pristine" class="error"> Phone is required </div> -->
                 </div>
 
-<!--                 <div class="col-12">
-                  <label for="username" class="form-label">Username</label>
-                  <div class="input-group has-validation">
-                    <span class="input-group-text">@</span>
-                    <input type="text" class="form-control" id="username" placeholder="Username" [(ngModel)]="checkout_payload.user_info.username" 
-                    required name="checkout_payload.user_info.username" #name="ngModel"/>
-                    <div class="invalid-feedback">
-                      Your username is required.
-                    </div>
-                  </div>
-                </div> -->
-
                 <div class="col-12">
-                  <label for="email" class="form-label">Email <span class="text-muted">(Optional)</span></label>
-                  <input type="email" class="form-control" id="email" placeholder="you@example.com" [(ngModel)]="checkout_payload.user_info.email"
-                  required name="checkout_payload.user_info.email" #name="ngModel"/>
-                  <div class="invalid-feedback">
-                    Please enter a valid email address for shipping updates.
-                  </div>
+                  <label for="email" class="form-label">Email </label>
+                  <input type="email" class="form-control" id="bill.email" placeholder="you@example.com" [(ngModel)]="checkout_payload.user_info.email"
+                   name="checkout_payload.user_info.email" #name="ngModel"/>
+                  
                 </div>
 
                 <div class="col-12">
                   <label for="address" class="form-label">Address</label>
-                  <input type="text" class="form-control" id="address" placeholder="1234 Main St" [(ngModel)]="checkout_payload.billing_address.address1"
+                  <input type="text" class="form-control" id="bill.address" placeholder="1234 Main St" [(ngModel)]="checkout_payload.billing_address.address1"
                   required name="checkout_payload.billing_address.address1" #name="ngModel"/>
                   <div class="invalid-feedback">
                     Please enter your shipping address.
@@ -140,13 +127,13 @@
 
                 <div class="col-12">
                   <label for="address2" class="form-label">Address 2 <span class="text-muted">(Optional)</span></label>
-                  <input type="text" class="form-control" id="address2" placeholder="Apartment or suite" [(ngModel)]="checkout_payload.billing_address.address2"
+                  <input type="text" class="form-control" id="bill.address2" placeholder="Apartment or suite" [(ngModel)]="checkout_payload.billing_address.address2"
                   name="checkout_payload.billing_address.address2"/>
                 </div>
 
                 <div class="col-md-4">
                   <label for="city1" class="form-label">City</label>
-                  <input type="text" class="form-control" id="city1" placeholder="City" [(ngModel)]="checkout_payload.billing_address.city"
+                  <input type="text" class="form-control" id="bill.city1" placeholder="City" [(ngModel)]="checkout_payload.billing_address.city"
                   required name="checkout_payload.billing_address.city" #name="ngModel"/>
                   <!-- <div class="invalid-feedback">State required.</div> -->
                 </div>
@@ -154,21 +141,21 @@
 
                 <div class="col-md-5">
                   <label for="country" class="form-label">Country</label>
-                  <input class="form-control" id="country" placeholder="Country" [(ngModel)]="checkout_payload.billing_address.country"
+                  <input class="form-control" id="bill.country" placeholder="Country" [(ngModel)]="checkout_payload.billing_address.country"
                   required name="ncheckout_payload.billing_address.countryame" #name="ngModel"/>
                   <div class="invalid-feedback">Country required.</div>
                 </div>
 
                 <div class="col-md-4">
                   <label for="state" class="form-label">State</label>
-                  <input type="text" class="form-control" id="state" placeholder="State" [(ngModel)]="checkout_payload.billing_address.state"
+                  <input type="text" class="form-control" id="bill.state" placeholder="State" [(ngModel)]="checkout_payload.billing_address.state"
                   required name="checkout_payload.billing_address.state" #name="ngModel"/>
                   <div class="invalid-feedback">State required.</div>
                 </div>
 
                 <div class="col-md-3">
                   <label for="zip" class="form-label">Zip</label>
-                  <input type="text" class="form-control" id="zip" placeholder="" required="" [(ngModel)]="checkout_payload.billing_address.zip"
+                  <input type="text" class="form-control" id="bill.zip" placeholder="" required="" [(ngModel)]="checkout_payload.billing_address.zip"
                   required name="name" #checkout_payload.billing_address.zip="ngModel"/>
                   <div class="invalid-feedback">Zip code required.</div>
                 </div>
@@ -188,28 +175,28 @@
 
                 <div class="col-sm-6">
                   <label for="firstName" class="form-label">First name</label>
-                  <input type="text" class="form-control" id="firstName" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.first_name" 
+                  <input type="text" class="form-control" id="ship.firstName" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.first_name" 
                   required name="checkout_payload.shipping_address.first_name" #name="ngModel"/>
                   
                 </div>
 
                 <div class="col-sm-6">
                   <label for="lastName" class="form-label">Last name</label>
-                  <input type="text" class="form-control" id="lastName" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.last_name" 
+                  <input type="text" class="form-control" id="ship.lastName" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.last_name" 
                   required name="checkout_payload.shipping_address.last_name" #name="ngModel"/>
                   
                 </div>
 
                 <div class="col-sm-6">
                   <label for="phone" class="form-label">Phone number</label>
-                  <input type="text" class="form-control" id="phone" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.phone" 
+                  <input type="text" class="form-control" id="ship.phone" placeholder=""  [(ngModel)]="checkout_payload.shipping_address.phone" 
                   required name="checkout_payload.shipping_address.phone" #phone="ngModel"/>
                   <!-- <div [hidden]="phone.valid || phone.pristine" class="error"> Phoner number is required </div> -->
                 </div>
 
                 <div class="col-12">
                   <label for="address" class="form-label">Address</label>
-                  <input type="text" class="form-control" id="address" placeholder="1234 Main St" [(ngModel)]="checkout_payload.shipping_address.address1"
+                  <input type="text" class="form-control" id="ship.address" placeholder="1234 Main St" [(ngModel)]="checkout_payload.shipping_address.address1"
                   required name="checkout_payload.shipping_address.address1" #name="ngModel"/>
                   <div class="invalid-feedback">
                     Please enter your shipping address.
@@ -218,13 +205,13 @@
 
                 <div class="col-12">
                   <label for="address2" class="form-label">Address 2 <span class="text-muted">(Optional)</span></label>
-                  <input type="text" class="form-control" id="address2" placeholder="Apartment or suite" [(ngModel)]="checkout_payload.shipping_address.address2"
+                  <input type="text" class="form-control" id="ship.address2" placeholder="Apartment or suite" [(ngModel)]="checkout_payload.shipping_address.address2"
                   name="checkout_payload.shipping_address.address2"/>
                 </div>
 
                 <div class="col-md-4">
                   <label for="city" class="form-label">City</label>
-                  <input type="text" class="form-control" id="city" placeholder="City" [(ngModel)]="checkout_payload.shipping_address.city"
+                  <input type="text" class="form-control" id="ship.city" placeholder="City" [(ngModel)]="checkout_payload.shipping_address.city"
                   required name="checkout_payload.shipping_address.city" #name="ngModel"/>
                   <div class="invalid-feedback">City required.</div>
                 </div>
@@ -232,14 +219,14 @@
                 
                 <div class="col-md-5">
                   <label for="country" class="form-label">Country</label>
-                  <input class="form-control" id="country" placeholder="Country" [(ngModel)]="checkout_payload.shipping_address.country"
+                  <input class="form-control" id="ship.country" placeholder="Country" [(ngModel)]="checkout_payload.shipping_address.country"
                   required name="checkout_payload.shipping_address.country" #name="ngModel"/>
                   <div class="invalid-feedback">Country required.</div>
                 </div>
 
                 <div class="col-md-4">
                   <label for="state" class="form-label">State</label>
-                  <input type="text" class="form-control" id="state" placeholder="State" [(ngModel)]="checkout_payload.shipping_address.state"
+                  <input type="text" class="form-control" id="ship.state" placeholder="State" [(ngModel)]="checkout_payload.shipping_address.state"
                   required name="checkout_payload.shipping_address.state" #name="ngModel"/>
                   <div class="invalid-feedback">State required.</div>
                 </div>
@@ -249,7 +236,7 @@
 
                 <div class="col-md-3">
                   <label for="zip" class="form-label">Zip</label>
-                  <input type="text" class="form-control" id="zip" placeholder="" required="" [(ngModel)]="checkout_payload.shipping_address.zip"
+                  <input type="text" class="form-control" id="ship.zip" placeholder="" required="" [(ngModel)]="checkout_payload.shipping_address.zip"
                   required name="checkout_payload.shipping_address.zip" #name="ngModel"/>
                   <div class="invalid-feedback">Zip code required.</div>
                 </div>

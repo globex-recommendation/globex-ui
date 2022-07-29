@@ -1,16 +1,16 @@
 export class CheckoutPayload {
     test: string;
     promotion: Promotion;
-    billing_address: BillingAddress;
-    shipping_address: ShippingAddress;
+    billing_address: Address;
+    shipping_address: Address;
     user_info: UserInfo;
     currency: Currency;
     payment: Payment;
     line_items: LineItem[];
     constructor() {
         this.promotion = new Promotion();
-        this.billing_address = new BillingAddress();
-        this.shipping_address = new ShippingAddress();
+        this.billing_address = new Address();
+        this.shipping_address = new Address();
         this.user_info = new UserInfo();
         this.currency = new Currency();
         this.payment = new Payment();
@@ -30,8 +30,7 @@ export class Promotion {
 
     }
 }
-
-export class BillingAddress {
+export class Address {
     first_name: string;
     last_name: string;
     address1: string;
@@ -41,21 +40,7 @@ export class BillingAddress {
     state: string;
     zip: string;
     phone: string;
-}
-
-export class ShippingAddress {
-    first_name: string;
-    last_name: string;
-    address1: string;
-    address2: string;
-    city: string
-    state: string;
-    country: string;
-    zip: string;
-    phone: string;
-    constructor() {
-
-    }
+        
 }
 
 export class UserInfo {
@@ -78,14 +63,18 @@ export class Currency {
 export class Payment {
     mode: string;
     credit_card_number: string;
-    card_expiry_date: string;
+    card_expiry_date: DateClass;
     card_cvv: string;
     name_on_card: string;
     constructor() {
 
     }
 }
-
+export class DateClass {
+    year: number;
+    month: number;
+    day: number;
+}
 export class LineItem {
     price: string;
     product_id: string;

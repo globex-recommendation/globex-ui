@@ -43,11 +43,11 @@ export function app(): express.Express {
 
   // external micro services typically running on OpenShift
   const API_MANAGEMENT_FLAG = get('API_MANAGEMENT_FLAG').default("NO").asString();  
-  const API_TRACK_USERACTIVITY = get('API_TRACK_USERACTIVITY').default('https://d8523dbb-977d-4d5c-be98-aef3da676192.mock.pstmn.io/track').asString();  
-  const API_GET_PAGINATED_PRODUCTS = get('API_GET_PAGINATED_PRODUCTS').default('https://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/products').asString();  
-  const API_GET_PRODUCT_DETAILS_BY_IDS = get('API_GET_PRODUCT_DETAILS_BY_IDS').default('https://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/product/list/').asString();  
-  const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('https://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
-  const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('https://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
+  const API_TRACK_USERACTIVITY = get('API_TRACK_USERACTIVITY').default('http://d8523dbb-977d-4d5c-be98-aef3da676192.mock.pstmn.io/track').asString();  
+  const API_GET_PAGINATED_PRODUCTS = get('API_GET_PAGINATED_PRODUCTS').default('http://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/products').asString();  
+  const API_GET_PRODUCT_DETAILS_BY_IDS = get('API_GET_PRODUCT_DETAILS_BY_IDS').default('http://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/product/list/').asString();  
+  const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('http://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
+  const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('http://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
 
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();

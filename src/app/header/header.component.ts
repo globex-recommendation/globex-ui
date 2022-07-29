@@ -57,8 +57,6 @@ export class HeaderComponent  {
     this.coolstoreCookiesService.user.name = this.loginForm.get("name").value;
     this.coolstoreCookiesService.user.email = this.loginForm.get("email").value;
     this.showModal = false;
-    this.coolstoreCookiesService
-
   }
 
   logout(){

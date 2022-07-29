@@ -13,3 +13,18 @@
 .ng-invalid:not(form)  {
   border-left: 5px solid #a94442; /* red */
 }
+
+.btn-autofill {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  display: block;
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.25rem;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
