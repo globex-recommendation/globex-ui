@@ -1,3 +1,6 @@
+<div class="alert alert-danger"  *ngIf="!coolstoreCookiesService.user.isUserLoggedIn && productsInCart.length > 0">
+  Please login to proceed with checkout.
+</div>
 <div class="container-fluid" *ngIf="productsInCart.length !== 0">
   <div class="row">
     <div class="col-md-12">
@@ -51,13 +54,12 @@
               </tbody>
             </table>
 
-        <div class="card">
+        <div class="card"  *ngIf="coolstoreCookiesService.user.isUserLoggedIn">
           <div class="card-body">
-            <button type="button" class="btn btn-primary btn-block btn-lg checkout-btn" routerLink="/checkout">Proceed to Checkout</button>
-          </div>
+            <button
+            type="button" class="btn btn-primary btn-block btn-lg checkout-btn" routerLink="/checkout">Proceed to Checkout</button>
+            </div>
         </div>
-
-
           </span>
         </div>
       </div>

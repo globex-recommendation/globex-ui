@@ -68,8 +68,9 @@ export class CheckoutComponent implements OnInit {
 
     this.orderSubmissionError = false;
     //TO-DO
+    this.checkout_payload.user_info.username = this.coolstoreCookiesService.user.email;
     this.checkout_payload.user_info.customer_id = this.checkout_payload.user_info.username;
-    this.checkout_payload.user_info.userId = this.checkout_payload.user_info.username;
+    this.checkout_payload.user_info.userId = this.coolstoreCookiesService.retrieveUserDetailsFromCookie()["userId"];
     this.checkout_payload.currency.currency = "USD";
 
     

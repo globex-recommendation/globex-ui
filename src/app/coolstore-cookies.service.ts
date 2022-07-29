@@ -21,7 +21,7 @@ export class CoolstoreCookiesService {
   private handleError: HandleError;
   http: HttpClient;
   userActivityObj;
-
+  public user = {isUserLoggedIn:false, name:"", email:"", password:""};
 
 
   constructor(cookieService: CookieService, private route: ActivatedRoute, http: HttpClient, httpErrorHandler: HttpErrorHandler) { 
@@ -57,6 +57,10 @@ export class CoolstoreCookiesService {
 
       this.cookieService.set('userDetailsMap', JSON.stringify(this.userDetailsMap));
     }
+  }
+
+  retrieveUserDetailsFromCookie() {
+    return  this.userDetailsMap;
   }
 
   saveUserLike(event, product) {

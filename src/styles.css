@@ -89,7 +89,7 @@ ul.rating {
 
 body {
   font-family: "Open Sans",Helvetica,Arial,sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.66666667;
   color: #363636;
 }
@@ -123,7 +123,6 @@ body {
   touch-action: manipulation;
   cursor: pointer;
   white-space: nowrap;
-  padding: 2px 6px;
   font-size: 12px;
   line-height: 1.66666667;
   border-radius: 3px;

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
 import { CoolStoreProductsService } from '../coolstore-products.service';
+import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 
 @Component({
   selector: 'app-cart',
@@ -8,13 +9,15 @@ import { CoolStoreProductsService } from '../coolstore-products.service';
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  //availableSides = [{display: 'None', value: ''}, {display: 'Light', value: 'light'}, {display: 'Dark', value: 'dark'}]
+
   productsInCart;
 
   cartService: CartService;
+  coolstoreCookiesService:CoolstoreCookiesService;
 
-  constructor(cartService:CartService) {
+  constructor(cartService:CartService, coolstoreCookiesService:CoolstoreCookiesService) {
     this.cartService = cartService;
+    this.coolstoreCookiesService = coolstoreCookiesService;
   }
 
   ngOnInit(): void {

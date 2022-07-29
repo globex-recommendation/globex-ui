@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 import { HeaderComponent } from './header/header.component';
@@ -59,7 +59,7 @@ const routes = [
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
-    FormsModule,
+    FormsModule, ReactiveFormsModule,
     RouterModule.forRoot(routes, {
     initialNavigation: 'enabledBlocking'
 }),

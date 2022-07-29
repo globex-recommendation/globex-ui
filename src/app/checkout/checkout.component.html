@@ -2,6 +2,12 @@
   An error has occured while placing the order. Please try later.
 </div>
 
+<div class="alert alert-danger"  *ngIf="!coolstoreCookiesService.user.isUserLoggedIn">
+  Please login to place order.
+</div>
+
+
+
 
 <div class="container-fluid" *ngIf="productsInCart.length == 0 && !(order && order.newOrderPlaced)">
       <div class="row">
@@ -66,9 +72,10 @@
                 <span>Total (USD)</span>
                 <strong>{{ getTotalCartValue() | currency }}</strong>
               </li>
-              <li class="list-group-item d-flex justify-content-between">
+              <li class="list-group-item d-flex justify-content-between" *ngIf="coolstoreCookiesService.user.isUserLoggedIn">
                 <br><br><br>
-              <button class="w-100 btn btn-success btn-lg" [disabled]="!heroForm.form.valid" type="submit" (click)="placeOrder()">
+              <button class="w-100 btn btn-success btn-lg" [disabled]="!heroForm.form.valid" type="submit"
+                 (click)="placeOrder()">
                 Submit Order
               </button>
               </li>
@@ -101,7 +108,7 @@
                   <!-- <div [hidden]="phone1.valid || phone1.pristine" class="error"> Phone is required </div> -->
                 </div>
 
-                <div class="col-12">
+<!--                 <div class="col-12">
                   <label for="username" class="form-label">Username</label>
                   <div class="input-group has-validation">
                     <span class="input-group-text">@</span>
@@ -111,7 +118,7 @@
                       Your username is required.
                     </div>
                   </div>
-                </div>
+                </div> -->
 
                 <div class="col-12">
                   <label for="email" class="form-label">Email <span class="text-muted">(Optional)</span></label>
