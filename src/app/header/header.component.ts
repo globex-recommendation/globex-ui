@@ -21,7 +21,6 @@ export class HeaderComponent  {
   
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
@@ -54,7 +53,6 @@ export class HeaderComponent  {
   }
   login(){
     this.coolstoreCookiesService.user.isUserLoggedIn = true;
-    this.coolstoreCookiesService.user.name = this.loginForm.get("name").value;
     this.coolstoreCookiesService.user.email = this.loginForm.get("email").value;
     this.showModal = false;
   }
