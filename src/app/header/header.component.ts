@@ -12,6 +12,8 @@ export class HeaderComponent  {
   
   cartService:CartService;
   coolstoreCookiesService:CoolstoreCookiesService;
+  isMenuCollapsed:boolean;
+
 
   constructor(cartService:CartService, coolstoreCookiesService:CoolstoreCookiesService,
     private formBuilder: FormBuilder) {
@@ -24,6 +26,8 @@ export class HeaderComponent  {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+    this.isMenuCollapsed = true;
+
 }
   
   retrieveUserDetailsFromCookie() {

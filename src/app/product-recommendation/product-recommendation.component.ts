@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CoolStoreProductsService } from '../coolstore-products.service';
 import { LogService } from '../log.service';
@@ -18,15 +19,19 @@ export class ProductRecommendationComponent implements OnInit {
   logService:LogService;
   recommendedProducts;
   subscription:Subscription;
+  testBrowser: boolean;
 
 
-  constructor(coolStoreService:CoolStoreProductsService, logService:LogService) {
+  constructor(coolStoreService:CoolStoreProductsService, logService:LogService, @Inject(PLATFORM_ID) platformId:string) {
+    this.testBrowser = isPlatformBrowser(platformId);
     this.coolStoreService = coolStoreService;
     this.logService = logService;
   }
 
   ngOnInit(): void {
-    this.fetchRecommendedProducts();
+    if (this.testBrowser) {
+      this.fetchRecommendedProducts();
+    }
   }
 
   

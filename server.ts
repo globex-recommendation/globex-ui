@@ -30,6 +30,7 @@ export function app(): express.Express {
   const ANGULR_API_TRACKUSERACTIVITY = '/api/trackUserActivity'
   const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds'
   const ANGULR_API_PLACEORDER = '/api/placeOrder'
+  const ANGULR_HEALTH = '/health';
 
 
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
@@ -204,6 +205,16 @@ export function app(): express.Express {
 
 
 //API Setup END
+
+//Health check
+  server.get(ANGULR_HEALTH, (req, res) => {
+    var healthcheck = {
+      uptime: process.uptime(),
+      message: 'OK',
+      timestamp: Date.now()
+    };
+    res.send(healthcheck);
+  });
 
 
   // Serve static files from /browser
