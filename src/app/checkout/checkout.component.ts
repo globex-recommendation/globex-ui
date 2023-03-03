@@ -42,9 +42,10 @@ export class CheckoutComponent implements OnInit {
   }
 
   getProductsInCart() {
-    this.productsInCart = this.cartService.getProductsInCart();
-    this.setupLineItems();
-
+    this.cartService.getCart(false).subscribe(cartItems => {
+      this.productsInCart = cartItems;
+      this.setupLineItems();
+    });
   }
 
   getTotalCartValue() {

@@ -31,6 +31,7 @@ export function app(): express.Express {
   const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds'
   const ANGULR_API_PLACEORDER = '/api/placeOrder'
   const ANGULR_HEALTH = '/health';
+  const ANGULR_API_CART = '/api/cart'
 
 
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
@@ -49,6 +50,7 @@ export function app(): express.Express {
   const API_GET_PRODUCT_DETAILS_BY_IDS = get('API_GET_PRODUCT_DETAILS_BY_IDS').default('http://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/product/list/').asString();  
   const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('http://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
   const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('http://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
+  const API_CART_SERVICE = get('API_CART_SERVICE').default('').asString();
 
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();
@@ -201,8 +203,48 @@ export function app(): express.Express {
       );
   });
 
-  
+  // Get CART API call
+  server.get(ANGULR_API_CART + '/:cartId', (req, res) => {
+    var cartId = req.params.cartId;
+    console.log('SSR:::: ANGULR_API_CART GET invoked for cart ' + cartId);
+    axios.get(API_CART_SERVICE + '/' + cartId)
+      .then(response => {
+        const items = response.data.items.map(i => {return {itemId: i.productId, name: i.productName, quantity: i.quantity, price: i.price}})
+        res.send(items)
+      })
+      .catch(error => console.log("ANGULR_API_CART", error));
+  })
 
+  // Post CART API call
+  server.post(ANGULR_API_CART + '/:cartId', (req, res) => {
+    var cartId = req.params.cartId;
+    console.log('SSR:::: ANGULR_API_CART POST invoked for cart ' + cartId);
+    var cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
+    axios.post(API_CART_SERVICE + '/' + cartId, cartItem)
+    .then(response => {
+      res.send(response.data);
+    })
+    .catch(error => console.log("ANGULR_API_CART", error));
+  });
+
+  // DELETE CART API Call (empty cart)
+  server.delete(ANGULR_API_CART + '/empty/:cartId', (req, res) => {
+    var cartId = req.params.cartId;
+    console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
+    axios.delete(API_CART_SERVICE + "/empty/" + cartId)
+      .then(response => res.send(response.data))
+      .catch(error => console.log("ANGULR_API_CART", error));
+  });
+
+  // DELETE CART API Call (remove item)
+  server.delete(ANGULR_API_CART + '/:cartId', (req, res) => {
+    var cartId = req.params.cartId;
+    var cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
+    console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
+    axios.delete(API_CART_SERVICE + "/" + cartId, {data: cartItem})
+      .then(response => res.send(response.data))
+      .catch(error => console.log("ANGULR_API_CART", error));
+  });
 
 //API Setup END
 

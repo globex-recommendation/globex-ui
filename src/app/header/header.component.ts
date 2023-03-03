@@ -42,8 +42,6 @@ export class HeaderComponent  {
     return this.cartService.getTotalProductsQuantityInCart()
   }
 
-
-
   //login code
   showModal: boolean;
   loginForm: FormGroup;
@@ -59,12 +57,14 @@ export class HeaderComponent  {
     this.coolstoreCookiesService.user.isUserLoggedIn = true;
     this.coolstoreCookiesService.user.email = this.loginForm.get("email").value;
     this.showModal = false;
+    this.cartService.mergeCart();
   }
 
   logout(){
     this.coolstoreCookiesService.user.isUserLoggedIn = false;
+    this.coolstoreCookiesService.user.email = ''
     this.loginForm.reset();
-
+    this.cartService.unsync();
   }
 
   // convenience getter for easy access to form fields

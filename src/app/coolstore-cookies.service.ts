@@ -152,6 +152,13 @@ export class CoolstoreCookiesService {
     }
   }
  
+  isUserLoggedIn() {
+    return this.user.isUserLoggedIn;
+  }
+
+  getUserId() {
+      return this.user.email;
+  }
 
 }
 
