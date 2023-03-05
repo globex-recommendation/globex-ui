@@ -13,6 +13,8 @@ import { AxiosError } from 'axios';
 
 import { get } from 'env-var';
 
+import { v4 as uuidv4 } from 'uuid';
+
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -32,8 +34,8 @@ export function app(): express.Express {
   const ANGULR_API_PLACEORDER = '/api/placeOrder'
   const ANGULR_HEALTH = '/health';
   const ANGULR_API_CART = '/api/cart'
-
-
+  const ANGULR_API_LOGIN = '/api/login'
+  
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
   
   const NODE_ENV = get('NODE_ENV').default('dev').asEnum(['dev', 'prod']);
@@ -51,6 +53,7 @@ export function app(): express.Express {
   const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('http://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
   const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('http://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
   const API_CART_SERVICE = get('API_CART_SERVICE').default('').asString();
+  const API_CUSTOMER_SERVICE = get('API_CUSTOMER_SERVICE').default('').asString();
 
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();
@@ -76,6 +79,7 @@ export function app(): express.Express {
   // Example Express Rest API endpoints
   //const http = require('http');
   const bodyParser = require('body-parser');
+  const cookieParser = require('cookie-parser')
   const axios = require('axios');
   
   if(API_MANAGEMENT_FLAG && API_MANAGEMENT_FLAG =='YES') {
@@ -83,7 +87,11 @@ export function app(): express.Express {
   }
 
   server.use(bodyParser.json());
+  server.use(cookieParser())
   server.use(bodyParser.urlencoded({extended: true}) );
+
+  // Session handling
+  const sessions = new Map();
   
 
   //API Setup START
@@ -244,6 +252,47 @@ export function app(): express.Express {
     axios.delete(API_CART_SERVICE + "/" + cartId, {data: cartItem})
       .then(response => res.send(response.data))
       .catch(error => console.log("ANGULR_API_CART", error));
+  });
+
+  // SIGNIN POST API Call
+  server.post(ANGULR_API_LOGIN, (req, res) => {
+    axios.get(API_CUSTOMER_SERVICE.replace(':custId', req.body.username))
+      .then(response => {
+        const sessionToken = uuidv4();
+        const now = new Date()
+        const sessionExpiresAt = new Date(+now + 3600 * 1000)
+        const userExpiresAt = new Date(+now + 3600 * 48 * 1000)
+        sessions.set(sessionToken, {username: req.body.username, expiresAt: sessionExpiresAt});
+        res.cookie("globex_session_token", sessionToken, { expires: sessionExpiresAt, sameSite: 'lax' });
+        res.cookie("globex_user_id", req.body.username, {expires: userExpiresAt, sameSite: 'lax'});
+        res.status(200).send({"success": true});        
+      })
+      .catch(error => {
+        if (error.response && error.response.status == 404) {
+          res.status(error.response.status).send()
+        } else {
+          console.log("ANGULR_API_LOGIN", error);
+          res.status(500).send();
+        }
+      });
+  });
+
+  server.delete(ANGULR_API_LOGIN, (req, res) => {
+    console.log(req.cookies);
+    if (!req.cookies) {
+      res.status(401).send();
+      return;
+    }
+
+    const sessionToken = req.cookies['globex_session_token']
+    if (!sessionToken) {
+        res.status(401).send();
+        return;
+    }
+
+    sessions.delete(sessionToken);
+
+    res.status(204).send();
   });
 
 //API Setup END

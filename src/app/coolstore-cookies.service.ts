@@ -21,15 +21,25 @@ export class CoolstoreCookiesService {
   private handleError: HandleError;
   http: HttpClient;
   userActivityObj;
-  public user = {isUserLoggedIn:false, name:"", email:"", password:""};
+  public user;
 
 
   constructor(cookieService: CookieService, private route: ActivatedRoute, http: HttpClient, httpErrorHandler: HttpErrorHandler) { 
     this.cookieService = cookieService;
-    this.getUserDetailsFromCookie();
     this.http = http;
     this.handleError = httpErrorHandler.createHandleError('CoolstoreCookiesService');
+    this.initialize();
+  }
 
+  initialize() {
+    this.cookieService.delete('globex_session_token');
+    if (this.cookieService.check('globex_user_id')) {
+      const username = this.cookieService.get('globex_user_id');
+      this.user = {isUserLoggedIn:false, name: username, email:"", password:""}
+    } else {
+      this.user = {isUserLoggedIn:false, name: "", email:"", password:""}
+    }
+    this.getUserDetailsFromCookie();
   }
 
   getUserDetailsFromCookie() {    
@@ -152,12 +162,32 @@ export class CoolstoreCookiesService {
     }
   }
  
+  setUserFromCookies() {
+    if (this.cookieService.check('globex_user_id') && this.cookieService.check('globex_session_token')) {
+      const username = this.cookieService.get('globex_user_id');
+      this.user = {isUserLoggedIn:true, name: username, email:"", password:""}
+    }
+  }
+
   isUserLoggedIn() {
     return this.user.isUserLoggedIn;
   }
 
   getUserId() {
-      return this.user.email;
+      return this.user.name;
+  }
+
+  resetUser() {
+    this.cookieService.delete('globex_session_token');
+    this.cookieService.delete('globex_user_id');
+    this.user = {isUserLoggedIn:false, name: "", email:"", password:""}
+  }
+
+  getSession() {
+    if (this.cookieService.check('globex_session_token')) {
+      return this.cookieService.get('globex_session_token');
+    }
+    return null;
   }
 
 }

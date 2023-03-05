@@ -63,12 +63,11 @@
                   <div class="modal-body">
                     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                       <div class="form-group">
-                        <label>Email</label>
-                        <input type="text" required formControlName="email" class="form-control"
-                          [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
-                        <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                          <div *ngIf="f.email.errors.required">Email is required</div>
-                          <div *ngIf="f.email.errors.email">Email must be a valid email address</div>
+                        <label>Username</label>
+                        <input type="text" required formControlName="username" class="form-control"
+                          [ngClass]="{ 'is-invalid': submitted && f.username.errors }" />
+                        <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                          <div *ngIf="f.username.errors.required">Username is required</div>
                         </div>
                       </div>
                       <div class="form-group">

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CartService } from '../cart.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
+import { LoginService } from '../login.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -10,20 +11,22 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class HeaderComponent  {
   
-  cartService:CartService;
-  coolstoreCookiesService:CoolstoreCookiesService;
+  cartService: CartService;
+  coolstoreCookiesService: CoolstoreCookiesService;
+  loginService: LoginService
   isMenuCollapsed:boolean;
 
 
-  constructor(cartService:CartService, coolstoreCookiesService:CoolstoreCookiesService,
+  constructor(cartService: CartService, coolstoreCookiesService: CoolstoreCookiesService, loginService: LoginService,
     private formBuilder: FormBuilder) {
     this.cartService = cartService;
     this.coolstoreCookiesService = coolstoreCookiesService;
+    this.loginService = loginService;
   }
   
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
     this.isMenuCollapsed = true;
@@ -47,39 +50,50 @@ export class HeaderComponent  {
   loginForm: FormGroup;
   submitted = false;
   show()   {
-    this.showModal = true; // Show-Hide Modal Check
-    
+    this.showModal = true; // Show-Hide Modal Check    
   }
+
   hide()  {
     this.showModal = false;
   }
-  login(){
-    this.coolstoreCookiesService.user.isUserLoggedIn = true;
-    this.coolstoreCookiesService.user.email = this.loginForm.get("email").value;
-    this.showModal = false;
-    this.cartService.mergeCart();
+
+  login() {
+    let username = this.loginForm.get("username").value;
+    let password = this.loginForm.get("password").value;
+    this.loginService.login(username, password)
+      .subscribe(success => {
+        if (success) {
+          this.showModal = false;
+          this.coolstoreCookiesService.setUserFromCookies();
+          this.cartService.mergeCart();
+        } else {
+          this.showModal = true;
+        }
+      });
   }
 
-  logout(){
-    this.coolstoreCookiesService.user.isUserLoggedIn = false;
-    this.coolstoreCookiesService.user.email = ''
-    this.loginForm.reset();
-    this.cartService.unsync();
+  logout() {
+    this.loginService.logout()
+      .subscribe(success => {
+        console.log('resetting');
+        this.coolstoreCookiesService.resetUser();
+        this.loginForm.reset();
+        this.cartService.unsync();
+      });
   }
 
   // convenience getter for easy access to form fields
-get f() { return this.loginForm.controls; }
-onSubmit() {
-    this.submitted = true;
-    // stop here if form is invalid
-    if (this.loginForm.invalid) {
-        return;
-    }
-    if(this.submitted)
-    {
-      this.showModal = false;
-    }
-   
-}
+  get f() { return this.loginForm.controls; }
+  onSubmit() {
+      this.submitted = true;
+      // stop here if form is invalid
+      if (this.loginForm.invalid) {
+          return;
+      }
+      if(this.submitted)
+      {
+        this.showModal = false;
+      }
+  }
 
 }
