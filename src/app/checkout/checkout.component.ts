@@ -4,7 +4,7 @@ import { CoolStoreProductsService } from '../coolstore-products.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Address, CheckoutPayload, LineItem } from '../models/checkout_payload.model';
-import { add } from 'lodash';
+import { CustomerService } from '../customer.service';
 
 @Component({
   selector: 'app-checkout',
@@ -17,6 +17,7 @@ export class CheckoutComponent implements OnInit {
   cookieService: CookieService;
   cartService:CartService;
   coolstoreCookiesService: CoolstoreCookiesService;
+  customerService: CustomerService;
   productsInCart;
   billingAndShippingSame=false;
   checkout_payload = new CheckoutPayload();    
@@ -24,11 +25,12 @@ export class CheckoutComponent implements OnInit {
   orderSubmissionError = false;
 
   constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService, 
-    coolstoreCookiesService: CoolstoreCookiesService, cartService:CartService) {
+    coolstoreCookiesService: CoolstoreCookiesService, cartService:CartService, customerService: CustomerService) {
     this.coolStoreService = coolStoreService;
     this.cookieService = cookieService;
     this.coolstoreCookiesService = coolstoreCookiesService;
-    this.cartService = cartService;   
+    this.cartService = cartService;
+    this.customerService = customerService;
     this.getProductsInCart();
     
   }
@@ -86,6 +88,34 @@ export class CheckoutComponent implements OnInit {
     this.checkout_payload.payment.name_on_card="Elvis Presley";
     this.checkout_payload.payment.credit_card_number="1122-3344-5566-7788"
    }
+  
+  getCustomerInfo() {
+    if(!this.coolstoreCookiesService.isUserLoggedIn) {
+      return;
+    }
+    this.customerService.getCustomerInfo(this.coolstoreCookiesService.getUserId())
+      .subscribe(c => {
+        if (!c) {
+          console.log('customer service returned null')
+        }
+        var address = new Address();
+        address.address1 = c.address.address1;
+        address.first_name = c.firstName;
+        address.last_name = c.lastName;
+        address.city = c.address.city;
+        address.country = c.address.country;
+        address.state = c.address.state;
+        address.zip = c.address.zipCode;
+        address.phone = c.phone;
+        this.checkout_payload.billing_address = address;
+        this.checkout_payload.shipping_address = address;
+        this.checkout_payload.user_info.email = c.email;
+        this.checkout_payload.payment.card_cvv="123";
+        this.checkout_payload.payment.card_expiry_date = {year:new Date().getFullYear(), month:12, day:12};    
+        this.checkout_payload.payment.name_on_card = c.firstName + ' ' + c.lastName;
+        this.checkout_payload.payment.credit_card_number="1122-3344-5566-7788"        
+      });    
+  }
 
   placeOrder() {
 

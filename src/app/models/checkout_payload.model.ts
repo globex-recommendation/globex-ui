@@ -18,7 +18,6 @@ export class CheckoutPayload {
     }
 }
 
-
 export class Promotion {
     amount: number;
     title: string;
@@ -30,6 +29,7 @@ export class Promotion {
 
     }
 }
+
 export class Address {
     first_name: string;
     last_name: string;
@@ -39,8 +39,7 @@ export class Address {
     country: string;
     state: string;
     zip: string;
-    phone: string;
-        
+    phone: string;        
 }
 
 export class UserInfo {

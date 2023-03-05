@@ -11,7 +11,8 @@ const envClientConfig = {
   ANGULR_API_GETPRODUCTDETAILS_FOR_IDS: '/api/getProductDetailsForIds',
   ANGULR_API_SUBMITORDER: '/api/placeOrder',
   ANGULR_API_CART: '/api/cart',
-  ANGULR_API_LOGIN: '/api/login'
+  ANGULR_API_LOGIN: '/api/login',
+  ANGULR_API_CUSTOMER: '/api/customer'
 }
 
 export default envClientConfig;

@@ -106,8 +106,7 @@ export class CoolstoreCookiesService {
 
         this.saveUserActivityPost().subscribe(response =>         {
           console.log("saveUserActivityPost", response);
-        });
-                          
+        });                         
   
   }
 

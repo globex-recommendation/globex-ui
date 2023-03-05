@@ -6,9 +6,6 @@
   Please login to place order.
 </div>
 
-
-
-
 <div class="container-fluid" *ngIf="productsInCart.length == 0 && !(order && order.newOrderPlaced)">
       <div class="row">
       <div class="col-md-12">
@@ -84,7 +81,7 @@
             <form (ngSubmit)="onSubmit()" #heroForm="ngForm">
             <div>
                 <h4 class="mb-3">Billing address</h4> 
-                <button class="btn btn-warning btn-lg btn-autofill"  (click)="autofill()" >Autofill form</button>
+                <button class="btn btn-warning btn-lg btn-autofill"  (click)="getCustomerInfo()" >Autofill form</button>
               </div>
               <div class="row g-3">
                 <div class="col-sm-6">
