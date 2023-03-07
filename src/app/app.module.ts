@@ -28,6 +28,7 @@ import { CartService } from './cart.service';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { LoginService } from './login.service';
 import { CustomerService } from './customer.service'
+import { OrderService } from './order.service';
 
 
 export function initConfig(appConfig: AppConfigService) {
@@ -39,8 +40,8 @@ const routes = [
   {path: 'products', component: TabsComponent},
   {path: 'cart', component: CartComponent},
   {path: 'product-detail/:itemId', component: ProductDetailComponent},
-  {path: 'myFavourites', component: YourFavouritesComponent},  
-  {path: 'checkout', component: CheckoutComponent},  
+  {path: 'myFavourites', component: YourFavouritesComponent},
+  {path: 'checkout', component: CheckoutComponent},
   {path: '**', redirectTo: '/home'}
 
 ];
@@ -71,12 +72,10 @@ const routes = [
   providers: [
     {
       provide: APP_INITIALIZER, useFactory: initConfig,  deps: [AppConfigService],  multi: true
-    }, 
-    CoolStoreProductsService, LogService, CookieService, HttpErrorHandler, MessageService, CoolstoreCookiesService, CartService, LoginService, CustomerService],
+    },
+    CoolStoreProductsService, LogService, CookieService, HttpErrorHandler, MessageService, CoolstoreCookiesService, CartService, LoginService, CustomerService, OrderService],
   bootstrap: [AppComponent]
 })
+
 export class AppModule {
-  
-
-
 }

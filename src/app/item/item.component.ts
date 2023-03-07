@@ -3,9 +3,6 @@ import { CoolStoreProductsService } from '../coolstore-products.service';
 import { CookieService } from 'ngx-cookie-service';
 import { CartService } from '../cart.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
-import { GlobexConstants } from '../core/constants/globex.constants';
-import { ActionInfo, Activity, UserActivityModel, UserInfo } from '../models/user-activity.model';
-import {v4 as uuidv4} from 'uuid';
 
 
 @Component({
@@ -22,12 +19,12 @@ export class ItemComponent implements OnInit {
 
   likeProductsListFromCookie = new Array;
 
-  constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService, 
+  constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService,
     coolstoreCookiesService: CoolstoreCookiesService, cartService:CartService) {
     this.coolStoreService = coolStoreService;
     this.cookieService = cookieService;
     this.coolstoreCookiesService = coolstoreCookiesService;
-    this.cartService = cartService; 
+    this.cartService = cartService;
   }
 
   ngOnInit(): void {
@@ -46,7 +43,7 @@ export class ItemComponent implements OnInit {
 
   saveUserLike(event, product) {
       this.coolstoreCookiesService.saveUserLike(event, product);
-  
+
   }
   removeProductLike(event, product) {
     this.coolstoreCookiesService.removeProductLike(event, product);
@@ -55,6 +52,5 @@ export class ItemComponent implements OnInit {
 
   addToCart(event, product) {
     this.cartService.addProductToCart(product);
-    //console.log(product);
   }
 }

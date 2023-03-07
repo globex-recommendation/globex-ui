@@ -3,6 +3,7 @@ import { CartService } from '../cart.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { LoginService } from '../login.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CustomerService } from '../customer.service';
 
 @Component({
   selector: 'app-header',
@@ -10,29 +11,30 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent  {
-  
+
   cartService: CartService;
   coolstoreCookiesService: CoolstoreCookiesService;
   loginService: LoginService
+  customerService: CustomerService
   isMenuCollapsed:boolean;
 
 
   constructor(cartService: CartService, coolstoreCookiesService: CoolstoreCookiesService, loginService: LoginService,
-    private formBuilder: FormBuilder) {
+    customerService: CustomerService, private formBuilder: FormBuilder) {
     this.cartService = cartService;
     this.coolstoreCookiesService = coolstoreCookiesService;
     this.loginService = loginService;
+    this.customerService = customerService;
   }
-  
+
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
     this.isMenuCollapsed = true;
-
 }
-  
+
   retrieveUserDetailsFromCookie() {
     return this.coolstoreCookiesService.retrieveUserDetailsFromCookie();
   }
@@ -50,7 +52,7 @@ export class HeaderComponent  {
   loginForm: FormGroup;
   submitted = false;
   show()   {
-    this.showModal = true; // Show-Hide Modal Check    
+    this.showModal = true; // Show-Hide Modal Check
   }
 
   hide()  {
@@ -75,7 +77,6 @@ export class HeaderComponent  {
   logout() {
     this.loginService.logout()
       .subscribe(success => {
-        console.log('resetting');
         this.coolstoreCookiesService.resetUser();
         this.loginForm.reset();
         this.cartService.unsync();
@@ -85,15 +86,15 @@ export class HeaderComponent  {
   // convenience getter for easy access to form fields
   get f() { return this.loginForm.controls; }
   onSubmit() {
-      this.submitted = true;
-      // stop here if form is invalid
-      if (this.loginForm.invalid) {
-          return;
-      }
-      if(this.submitted)
-      {
-        this.showModal = false;
-      }
+    this.submitted = true;
+    // stop here if form is invalid
+    if (this.loginForm.invalid) {
+        return;
+    }
+    if(this.submitted)
+    {
+      this.showModal = false;
+    }
   }
 
 }

@@ -9,10 +9,10 @@ const envClientConfig = {
   ANGULR_API_GETRECOMMENDEDPRODUCTS: '/api/getRecommendedProducts',
   ANGULR_API_TRACKUSERACTIVITY: '/api/trackUserActivity',
   ANGULR_API_GETPRODUCTDETAILS_FOR_IDS: '/api/getProductDetailsForIds',
-  ANGULR_API_SUBMITORDER: '/api/placeOrder',
   ANGULR_API_CART: '/api/cart',
   ANGULR_API_LOGIN: '/api/login',
-  ANGULR_API_CUSTOMER: '/api/customer'
+  ANGULR_API_CUSTOMER: '/api/customer',
+  ANGULAR_API_ORDER: '/api/order'
 }
 
 export default envClientConfig;

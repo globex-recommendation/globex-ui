@@ -20,7 +20,7 @@ export class CartService {
 
   private synced: boolean = false;
 
-  cartServiceUrl = serverEnvConfig.ANGULR_API_CART; 
+  cartServiceUrl = serverEnvConfig.ANGULR_API_CART;
 
   constructor(logService: LogService, cookieService: CoolstoreCookiesService, http: HttpClient, httpErrorHandler: HttpErrorHandler) {
     this.logService = logService;
@@ -39,7 +39,7 @@ export class CartService {
     this.addItemToCart(cartItem)
   }
 
-  addItemToCart(item: CartItem) {    
+  addItemToCart(item: CartItem) {
     let index = this.cart.findIndex(x => x.itemId === item.itemId);
     var cartItem : CartItem = null;
     if (index != -1) {
@@ -53,7 +53,7 @@ export class CartService {
     if (this.cookiesService.getUserId() != '') {
       this.logService.log("addItemToCart: synching external cart")
       let user = this.cookiesService.getUserId();
-      this.http.post<CartItem>(this.cartServiceUrl + "/" + user, cartItem).pipe(catchError(this.handleError('addItemToCart', cartItem)))
+      this.http.post<any>(this.cartServiceUrl + "/" + user, cartItem).pipe(catchError(this.handleError('addItemToCart', cartItem)))
         .subscribe(response => {});
     }
   }
@@ -72,7 +72,7 @@ export class CartService {
     if (this.cookiesService.getUserId() != '') {
       this.logService.log("removeItemFromCart: synching external cart")
       let user = this.cookiesService.getUserId();
-      this.http.delete<CartItem>(this.cartServiceUrl + "/" + user, {body: cartItem}).pipe(catchError(this.handleError('addProductToCart', cartItem)))
+      this.http.delete<any>(this.cartServiceUrl + "/" + user, {body: cartItem}).pipe(catchError(this.handleError('addProductToCart', cartItem)))
         .subscribe(response => {});
     }
   }
@@ -151,10 +151,10 @@ export class CartService {
 
   getTotalProductsQuantityInCart () {
     if(this.cart.length!=0) {
-      let totalTotalProdInCart: number = this.cart.map(a => a.quantity).reduce(function(a, b) {
+      let totalItemsInCart: number = this.cart.map(a => a.quantity).reduce(function(a, b) {
         return a + b;
       });
-      return totalTotalProdInCart;
+      return totalItemsInCart;
     } else {
       return 0;
     }

@@ -16,8 +16,8 @@ export class ListComponent implements OnInit {
   testBrowser: boolean;
   products = new PaginatedProductsList();
   paginationLimit = serverEnvConfig.ANGULR_API_GETPAGINATEDPRODUCTS_LIMIT; //number of products per page
-  
-  
+
+
   coolStoreService: CoolStoreProductsService;
   subscription:Subscription;
   page = 1;
@@ -35,23 +35,18 @@ export class ListComponent implements OnInit {
   }
 
   fetchPaginatedProductsList(page) {
-    
+
     this.coolStoreService.fetchPaginatedProductsList(page)
       .subscribe(products => (this.products = products));
-      
-      
   }
 
 
   loadPage(event){
-    //console.log("Event is " + event + " and oage is " + this.page);
     if(this.page != event) {
-      console.log("loadPage.event", event)
       this.page = event;
       this.fetchPaginatedProductsList(event);
     }
-    
-  } 
+  }
 
 
 

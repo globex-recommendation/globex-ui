@@ -31,11 +31,11 @@ export function app(): express.Express {
   const ANGULR_API_GETRECOMMENDEDPRODUCTS =  '/api/getRecommendedProducts'
   const ANGULR_API_TRACKUSERACTIVITY = '/api/trackUserActivity'
   const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds'
-  const ANGULR_API_PLACEORDER = '/api/placeOrder'
   const ANGULR_HEALTH = '/health';
   const ANGULR_API_CART = '/api/cart'
   const ANGULR_API_LOGIN = '/api/login'
   const ANGULR_API_CUSTOMER = '/api/customer'
+  const ANGULAR_API_ORDER = '/api/order'
 
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
 
@@ -52,9 +52,9 @@ export function app(): express.Express {
   const API_GET_PAGINATED_PRODUCTS = get('API_GET_PAGINATED_PRODUCTS').default('http://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/products').asString();
   const API_GET_PRODUCT_DETAILS_BY_IDS = get('API_GET_PRODUCT_DETAILS_BY_IDS').default('http://3ea8ea3c-2bc9-45ae-9dc9-73aad7d8eafb.mock.pstmn.io/services/product/list/').asString();
   const API_CATALOG_RECOMMENDED_PRODUCT_IDS = get('API_CATALOG_RECOMMENDED_PRODUCT_IDS').default('http://e327d0a8-a4cc-4e60-8707-51a295f04f76.mock.pstmn.io/score/product').asString();
-  const API_TRACK_PLACEORDER = get('API_TRACK_PLACEORDER').default('http://a159fb68-7fac-4e14-9741-bd705561551f.mock.pstmn.io/placeorder').asString();
   const API_CART_SERVICE = get('API_CART_SERVICE').default('').asString();
   const API_CUSTOMER_SERVICE = get('API_CUSTOMER_SERVICE').default('').asString();
+  const API_ORDER_SERVICE = get('API_ORDER_SERVICE').asString();
 
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();
@@ -188,30 +188,6 @@ export function app(): express.Express {
       );
   });
 
-   // Place Order API call
-
-   server.post(ANGULR_API_PLACEORDER, (req, res) => {
-    var url = API_TRACK_PLACEORDER;
-    console.log('SSR::::' + ANGULR_API_PLACEORDER+ ' invoked');
-    axios
-      .post(url, req.body)
-      .then(response => {
-        res.send(response.data);
-      })
-      .catch(
-        (reason: AxiosError<{additionalInfo:string}>) => {
-          /* if (reason.response!.status === 400) {
-            // Handle 400
-            res.send("error:reason.response!.status " + reason.response!.status);
-          } else {
-            res.send("error:reason.response!.status " + reason.response!.status);
-          }
- */          res.send(reason);
-          console.log("ANGULR_API_TRACKUSERACTIVITY AxiosError", reason.message)
-        }
-      );
-  });
-
   // Get CART API call
   server.get(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
@@ -280,7 +256,6 @@ export function app(): express.Express {
 
   // DELETE LOGIN API Call
   server.delete(ANGULR_API_LOGIN, (req, res) => {
-    console.log(req.cookies);
     if (!req.cookies) {
       res.status(401).send();
       return;
@@ -313,6 +288,22 @@ export function app(): express.Express {
         }
       });
 
+  });
+
+  // POST ORDER API CALL
+  server.post(ANGULAR_API_ORDER, (req, res) => {
+    const sessionToken = req.cookies['globex_session_token']
+    const custId = req.body.customer;
+    if (!validateSession(sessions, sessionToken, custId)) {
+      res.status(401).send();
+      return;
+    }
+    axios.post(API_ORDER_SERVICE, req.body)
+      .then(response => res.status(200).send(response.data))
+      .catch(error => {
+        console.log("ANGULR_API_CUSTOMER", error);
+        res.status(500).send();
+      })
   });
 
 //API Setup END

@@ -20,7 +20,6 @@ export class LoginService {
   login(username: String, password: String): Observable<boolean> {
     return this.http.post<HttpResponse<any>>(this.loginUrl, { username: username, password: password }, { observe: 'response' })
       .pipe(map(response => {
-        console.log(response);
         if (response.status === 200) {
           return true;
         } else {
