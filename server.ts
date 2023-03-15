@@ -107,7 +107,7 @@ export function app(): express.Express {
     var limit = req.query['limit'];
     var page = req.query['page'];
 
-    console.debug("URL called is: ", url);
+    //console.debug("URL called is: ", url);
     axios.get(url, {params: { limit: limit, timestamp:myTimestamp , page: page } })
       .then(response => {
         getProducts =  response.data;;
@@ -130,20 +130,22 @@ export function app(): express.Express {
     axios
       .get(getRecommendedProducIdsURL)
       .then(response => {
-        getRecommendedProducts =  response.data;
+        getRecommendedProducts = response.data;
         //console.debug("getRecommendedProducts ID", getRecommendedProducts )
 
         //get a list of Product Ids from the array sent
         var prodArray = getRecommendedProducts.map(s=>s.productId);
 
         commaSeparatedProdIds = prodArray.toString();
-        //console.debug("commaSeparatedProdIds", commaSeparatedProdIds);
+        if (!commaSeparatedProdIds) {
+          return {};
+        }
 
-        return axios.get(getProdDetailsByIdURL + commaSeparatedProdIds);
+        return axios.get(getProdDetailsByIdURL.replace(':ids', commaSeparatedProdIds));
       })
       .then(response => {
         var prodDetailsArray = response.data;
-        var returnData = getRecommendedProducts.map(t1 => ({...t1, ...prodDetailsArray.find(t2 => t2.itemId === t1.productId)}))
+        var returnData = getRecommendedProducts.map(t1 => ({...t1, ...prodDetailsArray.find(t2 => t2.itemId === t1.productId)}));
         returnData = returnData.slice(0,RECOMMENDED_PRODUCTS_LIMIT);
         res.send(returnData);
       }).catch(error => { console.log("ANGULR_API_GETRECOMMENDEDPRODUCTS", error); });
@@ -153,10 +155,14 @@ export function app(): express.Express {
   // Get Product Details based on Product IDs
   server.get(ANGULR_API_GETPRODUCTDETAILS_FOR_IDS, (req, res) => {
     //console.log('SSR:::: ANGULR_API_GETPRODUCTDETAILS_FOR_IDS ' + ANGULR_API_GETPRODUCTDETAILS_FOR_IDS+ ' invoked');
-    var commaSeparatedProdIds =  req.query["productIds"]
-    var url = API_GET_PRODUCT_DETAILS_BY_IDS;
+    var commaSeparatedProdIds: string =  req.query.productIds + "";
+    var url = API_GET_PRODUCT_DETAILS_BY_IDS.replace(':ids', commaSeparatedProdIds);
+    if (!commaSeparatedProdIds) {
+      res.send('[]')
+      return;
+    }
     axios
-      .get(url + commaSeparatedProdIds)
+      .get(url)
       .then(response => {
         //console.log("ANGULR_API_GETPRODUCTDETAILS_FOR_IDS for ids" + commaSeparatedProdIds, response.data);
         res.send(response.data);
@@ -164,11 +170,10 @@ export function app(): express.Express {
       .catch(error => { console.log("ANGULR_API_GETPRODUCTDETAILS_FOR_IDS", error); });
   });
 
-
   // Save user activity
 
   server.post(ANGULR_API_TRACKUSERACTIVITY, (req, res) => {
-    console.log('SSR::::' + ANGULR_API_TRACKUSERACTIVITY+ ' invoked');
+    //console.log('SSR::::' + ANGULR_API_TRACKUSERACTIVITY+ ' invoked');
     var url = API_TRACK_USERACTIVITY;
     axios
       .post(url, req.body)
@@ -191,7 +196,7 @@ export function app(): express.Express {
   // Get CART API call
   server.get(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    console.log('SSR:::: ANGULR_API_CART GET invoked for cart ' + cartId);
+    //console.log('SSR:::: ANGULR_API_CART GET invoked for cart ' + cartId);
     axios.get(API_CART_SERVICE + '/' + cartId)
       .then(response => {
         const items = response.data.items.map(i => {return {itemId: i.productId, name: i.productName, quantity: i.quantity, price: i.price}})
@@ -203,7 +208,7 @@ export function app(): express.Express {
   // Post CART API call
   server.post(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    console.log('SSR:::: ANGULR_API_CART POST invoked for cart ' + cartId);
+    //console.log('SSR:::: ANGULR_API_CART POST invoked for cart ' + cartId);
     let cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
     axios.post(API_CART_SERVICE + '/' + cartId, cartItem)
     .then(response => {
@@ -215,7 +220,7 @@ export function app(): express.Express {
   // DELETE CART API Call (empty cart)
   server.delete(ANGULR_API_CART + '/empty/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
+    //console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
     axios.delete(API_CART_SERVICE + "/empty/" + cartId)
       .then(response => res.send(response.data))
       .catch(error => console.log("ANGULR_API_CART", error));
@@ -225,7 +230,7 @@ export function app(): express.Express {
   server.delete(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
     let cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
-    console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
+    //console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
     axios.delete(API_CART_SERVICE + "/" + cartId, {data: cartItem})
       .then(response => res.send(response.data))
       .catch(error => console.log("ANGULR_API_CART", error));
