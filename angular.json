@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "globex-ui": {
+    "globex-web": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/globex-ui/browser",
+            "outputPath": "dist/globex-web/browser",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -70,10 +70,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "globex-ui:build:production"
+              "browserTarget": "globex-web:build:production"
             },
             "development": {
-              "browserTarget": "globex-ui:build:development"
+              "browserTarget": "globex-web:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "globex-ui:build"
+            "browserTarget": "globex-web:build"
           }
         },
         "test": {
@@ -108,7 +108,7 @@
         "server": {
           "builder": "@angular-devkit/build-angular:server",
           "options": {
-            "outputPath": "dist/globex-ui/server",
+            "outputPath": "dist/globex-web/server",
             "main": "server.ts",
             "tsConfig": "tsconfig.server.json"
           },
@@ -134,12 +134,12 @@
           "builder": "@nguniversal/builders:ssr-dev-server",
           "configurations": {
             "development": {
-              "browserTarget": "globex-ui:build:development",
-              "serverTarget": "globex-ui:server:development"
+              "browserTarget": "globex-web:build:development",
+              "serverTarget": "globex-web:server:development"
             },
             "production": {
-              "browserTarget": "globex-ui:build:production",
-              "serverTarget": "globex-ui:server:production"
+              "browserTarget": "globex-web:build:production",
+              "serverTarget": "globex-web:server:production"
             }
           },
           "defaultConfiguration": "development"
@@ -153,12 +153,12 @@
           },
           "configurations": {
             "production": {
-              "browserTarget": "globex-ui:build:production",
-              "serverTarget": "globex-ui:server:production"
+              "browserTarget": "globex-web:build:production",
+              "serverTarget": "globex-web:server:production"
             },
             "development": {
-              "browserTarget": "globex-ui:build:development",
-              "serverTarget": "globex-ui:server:development"
+              "browserTarget": "globex-web:build:development",
+              "serverTarget": "globex-web:server:development"
             }
           },
           "defaultConfiguration": "production"
@@ -175,7 +175,7 @@
       }
     }
   },
-  "defaultProject": "globex-ui",
+  "defaultProject": "globex-web",
   "cli": {
     "defaultCollection": "@angular-eslint/schematics"
   }

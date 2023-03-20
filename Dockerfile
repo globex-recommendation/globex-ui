@@ -14,7 +14,7 @@ RUN npm install
 COPY --chown=1001:1001 . $HOME
 
 #### generate build --prod
-RUN ng build --configuration=production --output-hashing=none && ng run globex-ui:server:production --output-hashing=none
+RUN ng build --configuration=production --output-hashing=none && ng run globex-web:server:production --output-hashing=none
 
 # Second stage copies the application to the minimal image
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal:1
@@ -34,4 +34,4 @@ EXPOSE 8080
 # Run script uses standard ways to run the application
 RUN pwd
 RUN ls -a
-CMD node ./dist/globex-ui/server/main.js
+CMD node ./dist/globex-web/server/main.js

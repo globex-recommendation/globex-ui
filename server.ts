@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 export function app(): express.Express {
   console.log("Express server side setup is complete....")
   const server = express();
-  const distFolder = join(process.cwd(), 'dist/globex-ui/browser');
+  const distFolder = join(process.cwd(), 'dist/globex-web/browser');
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
 
 
