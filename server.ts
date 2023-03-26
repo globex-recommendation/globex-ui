@@ -100,11 +100,12 @@ export function app(): express.Express {
 
   // Session handling
   const sessions = new Map<string, Session>();
-  const accessTokenSessions = new Map<string, Session>();
+
+  //Access Token parsing
+  var Buffer = require('buffer').Buffer;
 
 
   //API Setup START
-  //Get Paginated Products
   server.get(ANGULAR_API_AUTHCONFIG, (req, res) => {
     res.send(
       {
@@ -183,7 +184,6 @@ export function app(): express.Express {
   });
 
   // Save user activity
-
   server.post(ANGULR_API_TRACKUSERACTIVITY, (req, res) => {
     var url = API_TRACK_USERACTIVITY;
     axios
@@ -245,29 +245,14 @@ export function app(): express.Express {
 
   // POST LOGIN API Call
   server.post(ANGULR_API_LOGIN, (req, res) => {
-    console.log("accessToken", req.body)
-   
-    axios.get(API_CUSTOMER_SERVICE.replace(':custId', req.body.username))
-      .then(response => {
-        const sessionToken = uuidv4();
-        const now = new Date()
-        const sessionExpiresAt = new Date(+now + 3600 * 1000)
-        const userExpiresAt = new Date(+now + 3600 * 48 * 1000)
-        sessions.set(sessionToken, new Session(req.body.username, sessionExpiresAt));
-        res.cookie("globex_session_token", sessionToken, { expires: sessionExpiresAt, sameSite: 'lax' });
-        res.cookie("globex_user_id", req.body.username, {expires: userExpiresAt, sameSite: 'lax'});
-        accessTokenSessions.set(sessionToken, req.body.accessToken);
-        console.log("accessTokenSessions" + accessTokenSessions);        
-        res.status(200).send({"success": true});        
-      })
-      .catch(error => {
-        if (error.response && error.response.status == 404) {
-          res.status(error.response.status).send()
-        } else {
-          console.log("ANGULR_API_LOGIN", error);
-          res.status(500).send();
-        }
-      });
+    const accessToken: string = req.body.accessToken;
+    const accessTokenPart: string = accessToken.split('.')[1];
+    const decoded: any = JSON.parse(Buffer.from(accessTokenPart, 'base64').toString());
+    const sessionToken: string = decoded.sid;
+    const sessionExpiresAt: number = decoded.exp * 1000;
+    sessions.set(sessionToken, new Session(decoded.preferred_username, sessionExpiresAt, accessToken));
+    res.cookie("globex_session_token", sessionToken, { expires: new Date(sessionExpiresAt), sameSite: 'lax' });
+    res.status(200).send({"success": true});
   });
 
   // DELETE LOGIN API Call
@@ -282,7 +267,6 @@ export function app(): express.Express {
         return;
     }
     sessions.delete(sessionToken);
-    accessTokenSessions.delete(sessionToken);
     res.status(204).send();
   });
 
@@ -310,15 +294,14 @@ export function app(): express.Express {
   // POST ORDER API CALL
   server.post(ANGULAR_API_ORDER, (req, res) => {
     const sessionToken = req.cookies['globex_session_token']
-    const configHeader = {
-      headers: { Authorization: `Bearer ${accessTokenSessions.get(sessionToken)}` }
-    };
-    console.log("sessionToken", sessionToken)
     const custId = req.body.customer;
     if (!validateSession(sessions, sessionToken, custId)) {
       res.status(401).send();
       return;
     }
+    const configHeader = {
+      headers: { Authorization: `Bearer ${sessions.get(sessionToken).getAccessToken()}` }
+    };
     axios.post(API_ORDER_SERVICE, req.body, configHeader)
       .then(response => res.status(200).send(response.data))
       .catch(error => {
@@ -412,19 +395,25 @@ function run(): void {
 class Session {
 
   private username: String;
-  private expiresAt: Date;
+  private expiresAt: number;
+  private accessToken: String;
 
-  constructor(username, expiresAt) {
-    this.username = username
-    this.expiresAt = expiresAt
+  constructor(username: String, expiresAt: number, accessToken: any) {
+    this.username = username;
+    this.expiresAt = expiresAt;
+    this.accessToken = accessToken;
 }
 
   isExpired(): boolean {
-    return this.expiresAt < (new Date())
+    return this.expiresAt < Date.now();
   }
 
   isOwnedBy(user: String) {
     return this.username == user;
+  }
+
+  getAccessToken(): String {
+    return this.accessToken;
   }
 }
 

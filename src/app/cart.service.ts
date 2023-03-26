@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { LogService } from "./log.service";
-import { CoolstoreCookiesService } from './coolstore-cookies.service';
 import serverEnvConfig from "client.env.config";
 import { HttpClient } from '@angular/common/http';
 import { HandleError, HttpErrorHandler } from './http-error-handler.service';
 import { CartItem } from './models/cart.model';
 import { catchError, Observable, of } from 'rxjs';
+import { LoginService } from './login.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ import { catchError, Observable, of } from 'rxjs';
 export class CartService {
 
   private logService: LogService;
-  private cookiesService: CoolstoreCookiesService;
+  private loginService: LoginService;
   private cart: CartItem[] = [];
   private handleError: HandleError;
   http: HttpClient;
@@ -22,9 +22,9 @@ export class CartService {
 
   cartServiceUrl = serverEnvConfig.ANGULR_API_CART;
 
-  constructor(logService: LogService, cookieService: CoolstoreCookiesService, http: HttpClient, httpErrorHandler: HttpErrorHandler) {
+  constructor(logService: LogService, loginService: LoginService, http: HttpClient, httpErrorHandler: HttpErrorHandler) {
     this.logService = logService;
-    this.cookiesService = cookieService;
+    this.loginService = loginService;
     this.http = http;
     this.handleError = httpErrorHandler.createHandleError('CartService');
   }
@@ -50,9 +50,9 @@ export class CartService {
       this.cart.push(item)
       cartItem = item;
     }
-    if (this.cookiesService.getUserId() != '') {
+    if (this.loginService.getAuthenticatedUser() != '') {
       this.logService.log("addItemToCart: synching external cart")
-      let user = this.cookiesService.getUserId();
+      let user = this.loginService.getAuthenticatedUser();
       this.http.post<any>(this.cartServiceUrl + "/" + user, cartItem).pipe(catchError(this.handleError('addItemToCart', cartItem)))
         .subscribe(response => {});
     }
@@ -69,9 +69,9 @@ export class CartService {
         this.cart.splice(index, 1);
       }
     }
-    if (this.cookiesService.getUserId() != '') {
+    if (this.loginService.getAuthenticatedUser() != '') {
       this.logService.log("removeItemFromCart: synching external cart")
-      let user = this.cookiesService.getUserId();
+      let user = this.loginService.getAuthenticatedUser();
       this.http.delete<any>(this.cartServiceUrl + "/" + user, {body: cartItem}).pipe(catchError(this.handleError('addProductToCart', cartItem)))
         .subscribe(response => {});
     }
@@ -80,9 +80,9 @@ export class CartService {
   getCart(sync: boolean): Observable<CartItem[]> {
     this.logService.log('getCart called');
     // check if user is known. If so, get cart from cart service, if not use locally managed cart
-    if (this.cookiesService.getUserId() != '' && sync && !this.synced) {
+    if (this.loginService.getAuthenticatedUser() != '' && sync && !this.synced) {
       this.logService.log("getCart: synching external cart")
-      let user = this.cookiesService.getUserId();
+      let user = this.loginService.getAuthenticatedUser();
       let obs: Observable<CartItem[]> = this.http.get<CartItem[]>(this.cartServiceUrl + "/" + user).pipe(catchError(this.handleError('getCart', this.cart)));
       obs.subscribe(c => {
         this.cart = c;
@@ -95,9 +95,9 @@ export class CartService {
 
   mergeCart() {
     this.logService.log('mergeCart called');
-    if (this.cookiesService.getUserId() != '' && !this.synced) {
+    if (this.loginService.getAuthenticatedUser() != '' && !this.synced) {
       this.logService.log("mergeCart: merge with external cart")
-      let user = this.cookiesService.getUserId();
+      let user = this.loginService.getAuthenticatedUser();
       let obs: Observable<CartItem[]> = this.http.get<CartItem[]>(this.cartServiceUrl + "/" + user).pipe(catchError(this.handleError('getCart', this.cart)));
       obs.subscribe(c => {
         c.forEach(ci => {
@@ -141,9 +141,9 @@ export class CartService {
 
   clearCart(){
     this.cart = [];
-    if (this.cookiesService.getUserId() != '') {
+    if (this.loginService.isUserAuthenticated()) {
       this.logService.log("clearCart: synching external cart")
-      let user = this.cookiesService.getUserId();
+      let user = this.loginService.getAuthenticatedUser();
       this.http.delete(this.cartServiceUrl + "/empty/" + user).pipe(catchError(this.handleError('clearCart')))
       .subscribe(response => {});
     }

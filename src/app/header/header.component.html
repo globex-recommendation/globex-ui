@@ -35,10 +35,10 @@
           </li>
           <li>
 
-            <div class="container" *ngIf="this.isUserAuthenticated">
+            <div class="container" *ngIf="this.isUserAuthenticated()">
               <a (click)="logout()" class=" nav-link login">Logout</a>
             </div>
-            <div class="container" *ngIf="!this.isUserAuthenticated">
+            <div class="container" *ngIf="!this.isUserAuthenticated()">
               <a (click)="authenticateUser()" class=" nav-link login">Login</a>
             </div>
             <!-- Creates the bootstrap modal where the image will appear -->

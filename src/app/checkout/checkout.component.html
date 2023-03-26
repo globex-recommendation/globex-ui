@@ -2,7 +2,7 @@
   An error has occured while placing the order. Please try later.
 </div>
 
-<div class="alert alert-danger"  *ngIf="!coolstoreCookiesService.user.isUserLoggedIn">
+<div class="alert alert-danger"  *ngIf="!loginService.isUserAuthenticated()">
   Please login to place order.
 </div>
 
@@ -69,7 +69,7 @@
                 <span>Total (USD)</span>
                 <strong>{{ getTotalCartValue() | currency }}</strong>
               </li>
-              <li class="list-group-item d-flex justify-content-between" *ngIf="coolstoreCookiesService.user.isUserLoggedIn">
+              <li class="list-group-item d-flex justify-content-between" *ngIf="loginService.isUserAuthenticated()">
               <button class="w-100 btn btn-success btn-lg mt-10" [disabled]="!heroForm.form.valid" type="submit"
                  (click)="submitOrder()">
                 Submit Order

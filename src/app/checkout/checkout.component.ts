@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
-import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Address, CheckoutData, init as initCheckoutData } from '../models/checkout.model';
 import { CustomerService } from '../customer.service';
@@ -8,6 +7,7 @@ import { LineItem, Order, ShippingAddress } from '../models/order.model';
 import { CartItem } from '../models/cart.model';
 import { OrderService } from '../order.service';
 import { LogService } from '../log.service';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-checkout',
@@ -17,7 +17,7 @@ import { LogService } from '../log.service';
 export class CheckoutComponent implements OnInit {
 
   cartService:CartService;
-  coolstoreCookiesService: CoolstoreCookiesService;
+  loginService: LoginService;
   customerService: CustomerService;
   orderService: OrderService;
   logService: LogService;
@@ -27,9 +27,9 @@ export class CheckoutComponent implements OnInit {
 
   orderSubmissionError = false;
 
-  constructor(logService: LogService, cookieService: CookieService, coolstoreCookiesService: CoolstoreCookiesService,
+  constructor(logService: LogService, cookieService: CookieService, loginService: LoginService, 
     cartService:CartService, customerService: CustomerService, orderService: OrderService) {
-    this.coolstoreCookiesService = coolstoreCookiesService;
+    this.loginService = loginService;
     this.cartService = cartService;
     this.customerService = customerService;
     this.orderService = orderService;
@@ -66,10 +66,10 @@ export class CheckoutComponent implements OnInit {
   }
 
   getCustomerInfo() {
-    if(!this.coolstoreCookiesService.isUserLoggedIn) {
+    if(!this.loginService.isUserAuthenticated()) {
       return;
     }
-    this.customerService.getCustomerInfo(this.coolstoreCookiesService.getUserId())
+    this.customerService.getCustomerInfo(this.loginService.getAuthenticatedUser())
       .subscribe(c => {
         if (!c) {
           this.logService.error('customer service returned null')
@@ -105,7 +105,7 @@ export class CheckoutComponent implements OnInit {
 
     this.orderSubmissionError = false;
 
-    if(!this.coolstoreCookiesService.isUserLoggedIn) {
+    if(!this.loginService.isUserAuthenticated) {
       return;
     }
 
@@ -125,7 +125,7 @@ export class CheckoutComponent implements OnInit {
       lineItems.push({product: cartItem.itemId, quantity: cartItem.quantity, price: cartItem.price});
     })
 
-    const order: Order = {customer: this.coolstoreCookiesService.getUserId(), shippingAddress: shippingAddress, lineItems: lineItems};
+    const order: Order = {customer: this.loginService.getAuthenticatedUser(), shippingAddress: shippingAddress, lineItems: lineItems};
     this.orderService.submitOrder(order).subscribe(response => {
       if (response.status == 'ok') {
         this.order = {newOrderPlaced: true, orderId: response.order};

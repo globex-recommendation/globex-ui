@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
-import { CoolstoreCookiesService } from '../coolstore-cookies.service';
+import { LoginService } from '../login.service';
 import { CartItem } from '../models/cart.model'
 
 @Component({
@@ -13,11 +13,11 @@ export class CartComponent implements OnInit {
   cart: CartItem[];
 
   cartService: CartService;
-  coolstoreCookiesService:CoolstoreCookiesService;
+  loginService: LoginService
 
-  constructor(cartService:CartService, coolstoreCookiesService:CoolstoreCookiesService) {
+  constructor(cartService:CartService, loginService: LoginService) {
     this.cartService = cartService;
-    this.coolstoreCookiesService = coolstoreCookiesService;
+    this.loginService = loginService;
   }
 
   ngOnInit(): void {

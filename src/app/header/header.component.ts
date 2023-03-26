@@ -21,7 +21,6 @@ export class HeaderComponent  implements OnInit{
   loginService: LoginService
   customerService: CustomerService
   isMenuCollapsed:boolean;
-  isUserAuthenticated:boolean;
   userData: any;
   loginData: {}
   loginErrorMessage:string;
@@ -44,11 +43,13 @@ export class HeaderComponent  implements OnInit{
     this.oidcSecurityService
       .checkAuth()
       .subscribe(({ isAuthenticated, accessToken, userData }) => {
-        catchError(this.handleError('oidcSecurityService', "checkAuth"))
+        catchError(this.handleError('oidcSecurityService', "checkAuth"));
         if (isAuthenticated) {
           this.navigateToStoredEndpoint();
-          this.isUserAuthenticated = isAuthenticated;
           this.login(userData["preferred_username"], accessToken);
+        } else {
+          this.loginService.setUserAuthenticated('', false);
+          this.coolstoreCookiesService.resetUser();
         }
       });
   }
@@ -79,7 +80,6 @@ export class HeaderComponent  implements OnInit{
   currentRoute:string;
   
   authenticateUser() {
-    console.log("this.router.url", this.router.url)
     this.currentRoute = this.router.url;
     this.write('redirect', this.router.url);
     
@@ -87,12 +87,10 @@ export class HeaderComponent  implements OnInit{
     
   }
 
-  login(username, accessToken) {
+  login(username: string, accessToken: string) {
     this.loginService.login(username, accessToken)
-      .subscribe(success => {
-        console.log("go to ", this.router.url)        
+      .subscribe(success => {        
         if (success) {
-          this.coolstoreCookiesService.setUserFromCookies();
           this.cartService.mergeCart();
         } else {
           this.showModal = true;
@@ -102,17 +100,17 @@ export class HeaderComponent  implements OnInit{
 
   logout() {
     this.oidcSecurityService.logoff().subscribe((result) =>  { 
-      console.log(result);
-      this.isUserAuthenticated = false;
       this.loginService.logout()
       .subscribe(success => {
         this.coolstoreCookiesService.resetUser();
-        this.loginForm.reset();
         this.cartService.unsync();
       }); 
     }
-    );
-     
+    );     
+  }
+
+  isUserAuthenticated(): boolean {
+    return this.loginService.isUserAuthenticated();
   }
 
   // convenience getter for easy access to form fields
@@ -147,9 +145,7 @@ export class HeaderComponent  implements OnInit{
   }
 
   private read(key: string): any {
-    console.log("localStorage", localStorage)
     const data = localStorage.getItem(key);
-    console.log("data", data)
     if (data != null) {
       return JSON.parse(data);
     }
