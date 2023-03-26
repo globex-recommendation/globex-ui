@@ -17,8 +17,8 @@ export class LoginService {
     this.http = http;
   }
 
-  login(username: String, password: String): Observable<boolean> {
-    return this.http.post<HttpResponse<any>>(this.loginUrl, { username: username, password: password }, { observe: 'response' })
+  login(username: String, accessToken: String): Observable<boolean> {
+    return this.http.post<HttpResponse<any>>(this.loginUrl, { username: username, accessToken: accessToken }, { observe: 'response' })
       .pipe(map(response => {
         if (response.status === 200) {
           return true;

@@ -24,19 +24,24 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
 
-## To run in a local setup: these env variables are needed
+## Env variables needed
 Run the globex-store  globex-db images locally and setup these URLs
 
 export API_TRACK_USERACTIVITY="http://localhost:9000/track"
-
 export API_GET_PAGINATED_PRODUCTS="http://localhost:9000/services/catalog/product"
-
 export API_GET_PRODUCT_DETAILS_BY_IDS="http://localhost:9000/services/catalog/product/:ids" 
-
 export API_CATALOG_RECOMMENDED_PRODUCT_IDS="http://localhost:9000/score/product"
-
 export API_CART_SERVICE="http://localhost:9000/services/cart"
-
 export API_CUSTOMER_SERVICE="http://localhost:9000/services/customer/id/:custId"
-
 export API_ORDER_SERVICE="http://localhost:8080/web-gateway/services/order"
+
+export SSO_CUSTOM_CONFIG="globex-web-gateway"
+export SSO_AUTHORITY="http://localhost:8180/realms/user1-globex_users"
+export SSO_REDIRECT_LOGOUT_URI="http://localhost:4200/home"
+export SSO_LOG_LEVEL=2
+
+
+
+## docker
+docker build . -t	quay.io/globex-recommendation/globex-recommendation-ui:<checkin-tag>
+docker push quay.io/globex-recommendation/globex-recommendation-ui:<checkin-tag>

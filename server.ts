@@ -1,7 +1,7 @@
 import 'zone.js/dist/zone-node';
 
 import { ngExpressEngine } from '@nguniversal/express-engine';
-import * as express from 'express';
+import express from 'express';
 import { join } from 'path';
 
 import { AppServerModule } from './src/main.server';
@@ -14,12 +14,15 @@ import { AxiosError } from 'axios';
 import { get } from 'env-var';
 
 import { v4 as uuidv4 } from 'uuid';
+import { LogLevel } from 'angular-auth-oidc-client';
+
 
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   console.log("Express server side setup is complete....")
   const server = express();
+
   const distFolder = join(process.cwd(), 'dist/globex-web/browser');
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
 
@@ -27,15 +30,16 @@ export function app(): express.Express {
   //setup pathways
   //client UI to SSR calls
   const ANGULR_API_GETPAGINATEDPRODUCTS =  '/api/getPaginatedProducts';
-  const ANGULR_API_GETPAGINATEDPRODUCTS_LIMIT = 8
-  const ANGULR_API_GETRECOMMENDEDPRODUCTS =  '/api/getRecommendedProducts'
-  const ANGULR_API_TRACKUSERACTIVITY = '/api/trackUserActivity'
-  const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds'
+  const ANGULR_API_GETPAGINATEDPRODUCTS_LIMIT = 8;
+  const ANGULR_API_GETRECOMMENDEDPRODUCTS =  '/api/getRecommendedProducts';
+  const ANGULR_API_TRACKUSERACTIVITY = '/api/trackUserActivity';
+  const ANGULR_API_GETPRODUCTDETAILS_FOR_IDS = '/api/getProductDetailsForIds';
   const ANGULR_HEALTH = '/health';
-  const ANGULR_API_CART = '/api/cart'
-  const ANGULR_API_LOGIN = '/api/login'
-  const ANGULR_API_CUSTOMER = '/api/customer'
-  const ANGULAR_API_ORDER = '/api/order'
+  const ANGULR_API_CART = '/api/cart';
+  const ANGULR_API_LOGIN = '/api/login';
+  const ANGULR_API_CUSTOMER = '/api/customer';
+  const ANGULAR_API_ORDER = '/api/order';
+  const ANGULAR_API_AUTHCONFIG = '/api/getAuthConfig';
 
   const RECOMMENDED_PRODUCTS_LIMIT = get('RECOMMENDED_PRODUCTS_LIMIT').default(5).asInt();
 
@@ -56,6 +60,15 @@ export function app(): express.Express {
   const API_CUSTOMER_SERVICE = get('API_CUSTOMER_SERVICE').default('').asString();
   const API_ORDER_SERVICE = get('API_ORDER_SERVICE').asString();
 
+  //setup keycloak auth settings
+  const SSO_CUSTOM_CONFIG = get('SSO_CUSTOM_CONFIG').default('').asString();
+  const SSO_AUTHORITY = get('SSO_AUTHORITY').default('').asString();
+  const SSO_REDIRECT_LOGOUT_URI = get('SSO_REDIRECT_LOGOUT_URI').default('').asString();
+  const SSO_LOG_LEVEL = get('SSO_LOG_LEVEL').default(LogLevel.Error).asString();
+  
+  
+  
+  //3SCALE INTEGRATION FOR AUTH KEY BASED AUTHENTICATION
   const API_USER_KEY_NAME = get('USER_KEY').default('api_key').asString();
   const API_USER_KEY_VALUE = get('API_USER_KEY_VALUE').default('8efad5cc78ecbbb7dbb8d06b04596aeb').asString();
 
@@ -68,13 +81,7 @@ export function app(): express.Express {
   server.set('views', distFolder);
 
 
-  // Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
-  server.engine('html', ngExpressEngine({
-    bootstrap: AppServerModule
-  }));
-
-  server.set('view engine', 'html');
-  server.set('views', distFolder);
+  
 
 
   // Example Express Rest API endpoints
@@ -93,21 +100,30 @@ export function app(): express.Express {
 
   // Session handling
   const sessions = new Map<string, Session>();
+  const accessTokenSessions = new Map<string, Session>();
 
 
   //API Setup START
   //Get Paginated Products
+  server.get(ANGULAR_API_AUTHCONFIG, (req, res) => {
+    res.send(
+      {
+        "SSO_CUSTOM_CONFIG_KEY" : SSO_CUSTOM_CONFIG,
+        "SSO_AUTHORITY_KEY": SSO_AUTHORITY,
+        "SSO_REDIRECT_LOGOUT_URI_KEY": SSO_REDIRECT_LOGOUT_URI,
+        "SSO_LOG_LEVEL_KEY": SSO_LOG_LEVEL
+      }
+      
+      );
+  });
 
   server.get(ANGULR_API_GETPAGINATEDPRODUCTS, (req, res) => {
-    /* console.log("SSR:::: O/P from '/api/getPaginatedProducts' invoked from server.ts with req.params", req.query['page']
-    + 'with URL as' + API_GET_PAGINATED_PRODUCTS + "?" + req.query['page']  + "&limit=" +req.query['limit'] ) */
     var getProducts:PaginatedProductsList;
     var myTimestamp = new Date().getTime().toString();
     var url = API_GET_PAGINATED_PRODUCTS.toString();
     var limit = req.query['limit'];
     var page = req.query['page'];
 
-    //console.debug("URL called is: ", url);
     axios.get(url, {params: { limit: limit, timestamp:myTimestamp , page: page } })
       .then(response => {
         getProducts =  response.data;;
@@ -121,7 +137,6 @@ export function app(): express.Express {
 
   // Get Product Details for the comma separated Product IDs string
   server.get(ANGULR_API_GETRECOMMENDEDPRODUCTS, (req, res) => {
-    //console.debug('SSR:::: erEnvConfig.ANGULR_API_GETRECOMMENDEDPRODUCTS ' + ANGULR_API_GETRECOMMENDEDPRODUCTS+ ' invoked');
     var commaSeparatedProdIds;
     var recommendedProducts= [];
     var getRecommendedProducIdsURL = API_CATALOG_RECOMMENDED_PRODUCT_IDS;
@@ -131,7 +146,6 @@ export function app(): express.Express {
       .get(getRecommendedProducIdsURL)
       .then(response => {
         getRecommendedProducts = response.data;
-        //console.debug("getRecommendedProducts ID", getRecommendedProducts )
 
         //get a list of Product Ids from the array sent
         var prodArray = getRecommendedProducts.map(s=>s.productId);
@@ -154,7 +168,6 @@ export function app(): express.Express {
 
   // Get Product Details based on Product IDs
   server.get(ANGULR_API_GETPRODUCTDETAILS_FOR_IDS, (req, res) => {
-    //console.log('SSR:::: ANGULR_API_GETPRODUCTDETAILS_FOR_IDS ' + ANGULR_API_GETPRODUCTDETAILS_FOR_IDS+ ' invoked');
     var commaSeparatedProdIds: string =  req.query.productIds + "";
     var url = API_GET_PRODUCT_DETAILS_BY_IDS.replace(':ids', commaSeparatedProdIds);
     if (!commaSeparatedProdIds) {
@@ -164,7 +177,6 @@ export function app(): express.Express {
     axios
       .get(url)
       .then(response => {
-        //console.log("ANGULR_API_GETPRODUCTDETAILS_FOR_IDS for ids" + commaSeparatedProdIds, response.data);
         res.send(response.data);
       })
       .catch(error => { console.log("ANGULR_API_GETPRODUCTDETAILS_FOR_IDS", error); });
@@ -173,7 +185,6 @@ export function app(): express.Express {
   // Save user activity
 
   server.post(ANGULR_API_TRACKUSERACTIVITY, (req, res) => {
-    //console.log('SSR::::' + ANGULR_API_TRACKUSERACTIVITY+ ' invoked');
     var url = API_TRACK_USERACTIVITY;
     axios
       .post(url, req.body)
@@ -196,7 +207,6 @@ export function app(): express.Express {
   // Get CART API call
   server.get(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    //console.log('SSR:::: ANGULR_API_CART GET invoked for cart ' + cartId);
     axios.get(API_CART_SERVICE + '/' + cartId)
       .then(response => {
         const items = response.data.items.map(i => {return {itemId: i.productId, name: i.productName, quantity: i.quantity, price: i.price}})
@@ -208,7 +218,6 @@ export function app(): express.Express {
   // Post CART API call
   server.post(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    //console.log('SSR:::: ANGULR_API_CART POST invoked for cart ' + cartId);
     let cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
     axios.post(API_CART_SERVICE + '/' + cartId, cartItem)
     .then(response => {
@@ -220,7 +229,6 @@ export function app(): express.Express {
   // DELETE CART API Call (empty cart)
   server.delete(ANGULR_API_CART + '/empty/:cartId', (req, res) => {
     let cartId = req.params.cartId;
-    //console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
     axios.delete(API_CART_SERVICE + "/empty/" + cartId)
       .then(response => res.send(response.data))
       .catch(error => console.log("ANGULR_API_CART", error));
@@ -230,7 +238,6 @@ export function app(): express.Express {
   server.delete(ANGULR_API_CART + '/:cartId', (req, res) => {
     let cartId = req.params.cartId;
     let cartItem = {productId: req.body.itemId, productName: req.body.name, quantity: req.body.quantity, price: req.body.price};
-    //console.log('SSR:::: ANGULR_API_CART DELETE invoked for cart ' + cartId);
     axios.delete(API_CART_SERVICE + "/" + cartId, {data: cartItem})
       .then(response => res.send(response.data))
       .catch(error => console.log("ANGULR_API_CART", error));
@@ -238,6 +245,8 @@ export function app(): express.Express {
 
   // POST LOGIN API Call
   server.post(ANGULR_API_LOGIN, (req, res) => {
+    console.log("accessToken", req.body)
+   
     axios.get(API_CUSTOMER_SERVICE.replace(':custId', req.body.username))
       .then(response => {
         const sessionToken = uuidv4();
@@ -247,6 +256,8 @@ export function app(): express.Express {
         sessions.set(sessionToken, new Session(req.body.username, sessionExpiresAt));
         res.cookie("globex_session_token", sessionToken, { expires: sessionExpiresAt, sameSite: 'lax' });
         res.cookie("globex_user_id", req.body.username, {expires: userExpiresAt, sameSite: 'lax'});
+        accessTokenSessions.set(sessionToken, req.body.accessToken);
+        console.log("accessTokenSessions" + accessTokenSessions);        
         res.status(200).send({"success": true});        
       })
       .catch(error => {
@@ -271,6 +282,7 @@ export function app(): express.Express {
         return;
     }
     sessions.delete(sessionToken);
+    accessTokenSessions.delete(sessionToken);
     res.status(204).send();
   });
 
@@ -298,12 +310,16 @@ export function app(): express.Express {
   // POST ORDER API CALL
   server.post(ANGULAR_API_ORDER, (req, res) => {
     const sessionToken = req.cookies['globex_session_token']
+    const configHeader = {
+      headers: { Authorization: `Bearer ${accessTokenSessions.get(sessionToken)}` }
+    };
+    console.log("sessionToken", sessionToken)
     const custId = req.body.customer;
     if (!validateSession(sessions, sessionToken, custId)) {
       res.status(401).send();
       return;
     }
-    axios.post(API_ORDER_SERVICE, req.body)
+    axios.post(API_ORDER_SERVICE, req.body, configHeader)
       .then(response => res.status(200).send(response.data))
       .catch(error => {
         console.log("ANGULR_API_CUSTOMER", error);

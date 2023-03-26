@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import {  AuthStateResult, EventTypes, OidcClientNotification, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 
 import { HeaderComponent } from './header/header.component';
 import { AppComponent } from './app.component';
@@ -29,22 +29,16 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { LoginService } from './login.service';
 import { CustomerService } from './customer.service'
 import { OrderService } from './order.service';
+import { AppRoutingModule } from './app-routing.module';
+import { AuthConfigModule } from './auth-config.module';
+import { filter } from 'rxjs';
 
 
 export function initConfig(appConfig: AppConfigService) {
   return () => appConfig.loadConfig();
 }
 
-const routes = [
-  {path: 'home', component: HomeComponent},
-  {path: 'products', component: TabsComponent},
-  {path: 'cart', component: CartComponent},
-  {path: 'product-detail/:itemId', component: ProductDetailComponent},
-  {path: 'myFavourites', component: YourFavouritesComponent},
-  {path: 'checkout', component: CheckoutComponent},
-  {path: '**', redirectTo: '/home'}
 
-];
 
 @NgModule({
   declarations: [
@@ -63,9 +57,7 @@ const routes = [
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     FormsModule, ReactiveFormsModule,
-    RouterModule.forRoot(routes, {
-    initialNavigation: 'enabledBlocking'
-}),
+    AppRoutingModule, AuthConfigModule,
     HttpClientModule,
     NgbModule
   ],
@@ -73,9 +65,20 @@ const routes = [
     {
       provide: APP_INITIALIZER, useFactory: initConfig,  deps: [AppConfigService],  multi: true
     },
-    CoolStoreProductsService, LogService, CookieService, HttpErrorHandler, MessageService, CoolstoreCookiesService, CartService, LoginService, CustomerService, OrderService],
+    CoolStoreProductsService, LogService, CookieService, HttpErrorHandler, MessageService, 
+    CoolstoreCookiesService, CartService, LoginService, CustomerService, OrderService, OidcSecurityService
+  ],
   bootstrap: [AppComponent]
 })
 
 export class AppModule {
+  constructor(private readonly eventService: PublicEventsService) {
+    this.eventService
+      .registerForEvents()
+      .pipe(filter((notification) => notification.type === EventTypes.NewAuthenticationResult))
+      .subscribe((result: OidcClientNotification<AuthStateResult>) => {
+        console.log("AuthStateResult", result)
+        
+      });
+  }
 }
