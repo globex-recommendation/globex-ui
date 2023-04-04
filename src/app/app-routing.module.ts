@@ -10,13 +10,13 @@ import { TabsComponent } from './tabs/tabs.component';
 import { YourFavouritesComponent } from './your-favourites/your-favourites.component';
 
 const routes = [
+    {path: '', component: HomeComponent},
     {path: 'home', component: HomeComponent},
     {path: 'products', component: TabsComponent},
     {path: 'cart', component: CartComponent},
     {path: 'product-detail/:itemId', component: ProductDetailComponent },
     {path: 'myFavourites', component: YourFavouritesComponent }, 
-    {path: 'checkout', component: CheckoutComponent, canActivate: [AutoLoginPartialRoutesGuard]},
-    {path: '**', redirectTo: '/home'}
+    {path: 'checkout', component: CheckoutComponent, canActivate: [AutoLoginPartialRoutesGuard]}  
   
   ];
   
