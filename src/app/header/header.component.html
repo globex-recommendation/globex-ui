@@ -21,18 +21,7 @@
         </li>
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" routerLink="/products">Cool Stuff Store</a>
-        </li>
-        <!-- <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" routerLink="/cart">Cart</a>
-        </li>
-        <li class="nav-item dropdown" ngbDropdown>
-            <a class="nav-link"  ngbDropdownToggle>Categories</a>
-            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-              <button ngbDropdownItem>Accessories</button>
-              <button ngbDropdownItem>Apparel</button>
-              <button ngbDropdownItem>Something else is here</button>
-            </div>        
-        </li> -->
+        </li>        
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" routerLink="/myFavourites">My Favourites</a>
         </li>
@@ -46,14 +35,14 @@
           </li>
           <li>
 
-            <div class="container" *ngIf="this.coolstoreCookiesService.user.isUserLoggedIn">
+            <div class="container" *ngIf="this.isUserAuthenticated()">
               <a (click)="logout()" class=" nav-link login">Logout</a>
             </div>
-            <div class="container" *ngIf="!this.coolstoreCookiesService.user.isUserLoggedIn">
-              <a (click)="show()" class=" nav-link login">Login</a>
+            <div class="container" *ngIf="!this.isUserAuthenticated()">
+              <a (click)="authenticateUser()" class=" nav-link login">Login</a>
             </div>
             <!-- Creates the bootstrap modal where the image will appear -->
-            <div [style.display]="showModal ? 'block' : 'none'" class="modal" id="imagemodal" tabindex="-1"
+            <!-- <div [style.display]="showModal ? 'block' : 'none'" class="modal" id="imagemodal" tabindex="-1"
               role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -63,12 +52,11 @@
                   <div class="modal-body">
                     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                       <div class="form-group">
-                        <label>Email</label>
-                        <input type="text" required formControlName="email" class="form-control"
-                          [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
-                        <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                          <div *ngIf="f.email.errors.required">Email is required</div>
-                          <div *ngIf="f.email.errors.email">Email must be a valid email address</div>
+                        <label>Username</label>
+                        <input type="text" required formControlName="username" class="form-control"
+                          [ngClass]="{ 'is-invalid': submitted && f.username.errors }" />
+                        <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                          <div *ngIf="f.username.errors.required">Username is required</div>
                         </div>
                       </div>
                       <div class="form-group">
@@ -94,7 +82,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </li>
         </ul>
       </form>

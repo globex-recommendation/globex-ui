@@ -21,24 +21,26 @@ export class CoolstoreCookiesService {
   private handleError: HandleError;
   http: HttpClient;
   userActivityObj;
-  public user = {isUserLoggedIn:false, name:"", email:"", password:""};
 
 
-  constructor(cookieService: CookieService, private route: ActivatedRoute, http: HttpClient, httpErrorHandler: HttpErrorHandler) { 
+  constructor(cookieService: CookieService, private route: ActivatedRoute, http: HttpClient, httpErrorHandler: HttpErrorHandler) {
     this.cookieService = cookieService;
-    this.getUserDetailsFromCookie();
     this.http = http;
     this.handleError = httpErrorHandler.createHandleError('CoolstoreCookiesService');
-
+    this.initialize();
   }
 
-  getUserDetailsFromCookie() {    
-  
+  initialize() {
+    this.cookieService.delete('globex_session_token');
+    this.getUserDetailsFromCookie();
+  }
+
+  getUserDetailsFromCookie() {
+
     this.userDetailsFromCookie = this.cookieService.get('userDetailsMap');
-    
-  
+
+
     if(!this.cookieService.check('userDetailsMap')) {
-      console.log("no user details yet");
       this.userDetailsMap["firstVisitTs"] = new Date().getTime().toString();
       this.userDetailsMap["prevVisitTs"]= new Date().getTime().toString();
       this.userDetailsMap["currentVisitTs"]= new Date().getTime().toString();
@@ -51,7 +53,7 @@ export class CoolstoreCookiesService {
       this.userDetailsMap["prevVisitTs"] = this.userDetailsMap["currentVisitTs"];
       this.userDetailsMap["currentVisitTs"] = new Date().getTime().toString();
       this.userDetailsMap["newVisit"] = 0;
-      
+
       var visitsCount = this.userDetailsMap["visitsCount"];
       this.userDetailsMap["visitsCount"] = visitsCount ? visitsCount+1 : 1;
 
@@ -75,15 +77,15 @@ export class CoolstoreCookiesService {
     this.cookieService.set('productLikes', likedProductsList.toString());
 
 
-    this.userActivityObj = new UserActivityModel( 
+    this.userActivityObj = new UserActivityModel(
                               GlobexConstants.General.SITE_ID,
                               new Activity(
-                                this.userDetailsMap["userId"], 
-                                this.route.snapshot.url.toString(), 
-                                uuidv4(), 
+                                this.userDetailsMap["userId"],
+                                this.route.snapshot.url.toString(),
+                                uuidv4(),
                                 GlobexConstants.General.USER_ACTIVITY_LIKE
                                 ) ,
-                              new UserInfo( 
+                              new UserInfo(
                                 this.userDetailsMap["visitsCount"], //visitsCount
                                 new Date().getTime(), //prevVisitTs
                                 new Date().getTime(), //firstVisitTs
@@ -94,43 +96,35 @@ export class CoolstoreCookiesService {
                               new ActionInfo(product.itemId, '', '')
                               )
 
-        this.saveUserActivityPost().subscribe(response =>         {
-          console.log("saveUserActivityPost", response);
-        });
-                          
-  
+        this.saveUserActivityPost().subscribe(response => {});
+
   }
 
-  
+
   saveUserActivityPostUrl = serverEnvConfig.ANGULR_API_TRACKUSERACTIVITY;  // URL to web api
   saveUserActivityPost(): Observable<UserActivityModel> {
-      return this.http.post<UserActivityModel>(this.saveUserActivityPostUrl, this.userActivityObj)
-      .pipe(
-        catchError(this.handleError('userActivityObj', this.userActivityObj))
-      );
-
-    }
+    return this.http.post<UserActivityModel>(this.saveUserActivityPostUrl, this.userActivityObj)
+      .pipe(catchError(this.handleError('userActivityObj', this.userActivityObj)));
+  }
 
 
-  dateToFormattedString() {    
+  dateToFormattedString() {
     return new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString();
-  };  
+  };
 
 
 
   getAllProductLikes(){
      var productLikesCookieValue = this.cookieService.get('productLikes');
      this.likeProductsListFromCookie = productLikesCookieValue.split(',');
-     console.log("this.likeProductsListFromCookie", this.likeProductsListFromCookie)
    }
 
    setupSingleProductForLike(currentProduct){
     if(this.likeProductsListFromCookie.indexOf(currentProduct.id) !== -1){
       currentProduct.liked = true;
     }
-    console.log("[CoolstoreCookieService].setupProductLikes()", currentProduct)
   }
-  
+
 
   removeProductLike(event, currentProduct){
     currentProduct.liked = false;
@@ -151,8 +145,17 @@ export class CoolstoreCookiesService {
       return false;
     }
   }
- 
 
+  resetUser() {
+    this.cookieService.delete('globex_session_token');
+  }
+
+  getSession() {
+    if (this.cookieService.check('globex_session_token')) {
+      return this.cookieService.get('globex_session_token');
+    }
+    return null;
+  }
 }
 
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
-import { CoolStoreProductsService } from '../coolstore-products.service';
-import { CoolstoreCookiesService } from '../coolstore-cookies.service';
+import { LoginService } from '../login.service';
+import { CartItem } from '../models/cart.model'
 
 @Component({
   selector: 'app-cart',
@@ -10,46 +10,48 @@ import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 })
 export class CartComponent implements OnInit {
 
-  productsInCart;
+  cart: CartItem[];
 
   cartService: CartService;
-  coolstoreCookiesService:CoolstoreCookiesService;
+  loginService: LoginService
 
-  constructor(cartService:CartService, coolstoreCookiesService:CoolstoreCookiesService) {
+  constructor(cartService:CartService, loginService: LoginService) {
     this.cartService = cartService;
-    this.coolstoreCookiesService = coolstoreCookiesService;
+    this.loginService = loginService;
   }
 
   ngOnInit(): void {
-    this.getCart();
+    this.getCart(true);
   }
 
-  getCart() {
-    this.productsInCart = this.cartService.getProductsInCart();
+  getCart(synch: boolean) {
+    this.cartService.getCart(synch).subscribe(cart => (this.cart = cart));
   }
+
   getTotalCartValue() {
-    return  this.cartService.getTotalCartValue();
+    return this.cartService.getTotalCartValue();
   }
+
   clearCart(){
-    this.productsInCart = [];
     this.cartService.clearCart();
+    this.getCart(false);
   }
+
   getTotalProductsQuantityInCart(){
     this.cartService.getTotalProductsQuantityInCart();
   }
 
-  addOneCount(product, index){
-    product.orderQuantity = product.orderQuantity+1;
+  addOneCount(cartItem: CartItem, index: number) {
+    this.cartService.addItemToCart(cartItem);
+    this.getCart(false);
   }
 
-  removeOneCount(product, index){
-    if(product.orderQuantity > 0) {
-      product.orderQuantity = product.orderQuantity-1;
-    }
+  removeOneCount(cartItem: CartItem, index: number){
+    this.cartService.removeItemFromCart(cartItem, 1);
+    this.getCart(false);
   }
 
-  deleteProduct(product, index){
-    this.productsInCart.splice(index, 1);
-    
+  deleteCartItem(cartItem: CartItem, index: number){
+    this.cartService.removeItemFromCart(cartItem, cartItem.quantity);
   }
 }

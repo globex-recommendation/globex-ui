@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart.service';
-import { CoolStoreProductsService } from '../coolstore-products.service';
-import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { CookieService } from 'ngx-cookie-service';
-import { Address, CheckoutPayload, LineItem } from '../models/checkout_payload.model';
-import { add } from 'lodash';
+import { Address, CheckoutData, init as initCheckoutData } from '../models/checkout.model';
+import { CustomerService } from '../customer.service';
+import { LineItem, Order, ShippingAddress } from '../models/order.model';
+import { CartItem } from '../models/cart.model';
+import { OrderService } from '../order.service';
+import { LogService } from '../log.service';
+import { LoginService } from '../login.service';
 
 @Component({
   selector: 'app-checkout',
@@ -13,24 +16,27 @@ import { add } from 'lodash';
 })
 export class CheckoutComponent implements OnInit {
 
-  coolStoreService:CoolStoreProductsService;
-  cookieService: CookieService;
   cartService:CartService;
-  coolstoreCookiesService: CoolstoreCookiesService;
-  productsInCart;
-  billingAndShippingSame=false;
-  checkout_payload = new CheckoutPayload();    
-  order;
+  loginService: LoginService;
+  customerService: CustomerService;
+  orderService: OrderService;
+  logService: LogService;
+  itemsInCart: CartItem[];
+  checkoutData: CheckoutData
+  order: any;
+
   orderSubmissionError = false;
 
-  constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService, 
-    coolstoreCookiesService: CoolstoreCookiesService, cartService:CartService) {
-    this.coolStoreService = coolStoreService;
-    this.cookieService = cookieService;
-    this.coolstoreCookiesService = coolstoreCookiesService;
-    this.cartService = cartService;   
-    this.getProductsInCart();
-    
+  constructor(logService: LogService, cookieService: CookieService, loginService: LoginService, 
+    cartService:CartService, customerService: CustomerService, orderService: OrderService) {
+    this.loginService = loginService;
+    this.cartService = cartService;
+    this.customerService = customerService;
+    this.orderService = orderService;
+    this.logService = logService;
+    this.getItemsInCart();
+    this.init();
+
   }
   submitted = false;
 
@@ -38,13 +44,12 @@ export class CheckoutComponent implements OnInit {
 
 
   ngOnInit(): void {
-    
   }
 
-  getProductsInCart() {
-    this.productsInCart = this.cartService.getProductsInCart();
-    this.setupLineItems();
-
+  getItemsInCart() {
+    this.cartService.getCart(false).subscribe(cartItems => {
+      this.itemsInCart = cartItems;
+    });
   }
 
   getTotalCartValue() {
@@ -55,65 +60,90 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.getTotalProductsQuantityInCart();
   }
 
-  setupLineItems() {
-    console.log("this.productsInCart", this.productsInCart)
-    this.checkout_payload.user_info.email = this.coolstoreCookiesService.user.email;
-    this.productsInCart.forEach(product => {
-      this.checkout_payload.line_items.push(
-        new LineItem(product.itemId, product.price, product.orderQuantity, product.itemId)
-      )  
-    });
-    console.log("this.checkout_payload.line_items", this.checkout_payload.line_items);
+  getTotalValueForItem(index: number) {
+    const cartItem: CartItem = this.itemsInCart[index];
+    return cartItem.price * cartItem.quantity;
   }
 
-  autofill() {
-    var address = new Address();
-    address.address1 = "3764 Elvis Presley Boulevard";
-    address.first_name = "Elvis ";
-    address.last_name="Presley";
-    address.city="Memphis";
-    address.country="country";
-    address.state="Tennessee";
-    address.zip="38153";
-    address.phone="1-45678-2343";
-    this.checkout_payload.billing_address = address;
-    this.checkout_payload.shipping_address = address;
-    this.checkout_payload.payment.card_cvv="123";
-    this.checkout_payload.payment.card_expiry_date = {year:2022, month:12, day:12};
-    //this.get('endDate').setValue(...)
+  getCustomerInfo() {
+    if(!this.loginService.isUserAuthenticated()) {
+      return;
+    }
+    this.customerService.getCustomerInfo(this.loginService.getAuthenticatedUser())
+      .subscribe(c => {
+        if (!c) {
+          this.logService.error('customer service returned null')
+        }
 
-    this.checkout_payload.payment.name_on_card="Elvis Presley";
-    this.checkout_payload.payment.credit_card_number="1122-3344-5566-7788"
-   }
+        let checkoutAddress: Address = {
+          first_name: c.firstName,
+          last_name: c.lastName,
+          phone: c.phone,
+          address1: c.address.address1,
+          address2: c.address.address2,
+          city: c.address.city,
+          zip: c.address.zipCode,
+          state: c.address.state,
+          country: c.address.country
+        };
+        this.checkoutData = {
+          customerEmail: c.email,
+          shippingAddress: checkoutAddress,
+          billingAddress: checkoutAddress,
+          payment: {
+            ccNameOnCard: c.firstName + ' ' + c.lastName,
+            ccNumber: '1122-3344-5566-7788',
+            ccExpiry: { year:new Date().getFullYear(), month:12, day:12 },
+            ccCvv: '123'
+          }
+        };
 
-  placeOrder() {
+      });
+  }
+
+  submitOrder() {
 
     this.orderSubmissionError = false;
-    //TO-DO
-    this.checkout_payload.user_info.username = this.coolstoreCookiesService.user.email;
-    this.checkout_payload.user_info.customer_id = this.checkout_payload.user_info.username;
-    this.checkout_payload.user_info.userId = this.coolstoreCookiesService.retrieveUserDetailsFromCookie()["userId"];
-    this.checkout_payload.currency.currency = "USD";
 
-    
-    this.coolStoreService.placeOrder(this.checkout_payload).subscribe(response =>         {
-      console.log("submitOrderPost", response);
-      if(response.status=='CONFIRMED') {
-        this.order = {newOrderPlaced: true, orderId: response.order_id};
+    if(!this.loginService.isUserAuthenticated) {
+      return;
+    }
+
+    const shippingAddress: ShippingAddress = {
+      name: this.checkoutData.shippingAddress.first_name + ' ' + this.checkoutData.shippingAddress.last_name,
+      phone: this.checkoutData.shippingAddress.phone,
+      address1: this.checkoutData.shippingAddress.address1,
+      address2: this.checkoutData.shippingAddress.address2,
+      city: this.checkoutData.shippingAddress.city,
+      zip: this.checkoutData.shippingAddress.zip,
+      state: this.checkoutData.shippingAddress.state,
+      country: this.checkoutData.shippingAddress.country
+    }
+
+    const lineItems: LineItem[] = [];
+    this.itemsInCart.forEach(cartItem => {
+      lineItems.push({product: cartItem.itemId, quantity: cartItem.quantity, price: cartItem.price});
+    })
+
+    const order: Order = {customer: this.loginService.getAuthenticatedUser(), shippingAddress: shippingAddress, lineItems: lineItems};
+    this.orderService.submitOrder(order).subscribe(response => {
+      if (response.status == 'ok') {
+        this.order = {newOrderPlaced: true, orderId: response.order};
         this.clearCart();
       } else {
         this.orderSubmissionError = true;
       }
-    });
+    })
   }
-  
+
   clearCart(){
-    this.productsInCart = [];
-    this.checkout_payload = new CheckoutPayload();    
+    this.itemsInCart = [];
+    this.checkoutData = null;
     this.cartService.clearCart();
   }
-  
 
-
+  init() {
+    this.checkoutData = initCheckoutData();
+  }
 }
 

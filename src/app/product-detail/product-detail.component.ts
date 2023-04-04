@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID  } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { CartService } from '../cart.service';
 import { CoolstoreCookiesService } from '../coolstore-cookies.service';
 import { CoolStoreProductsService } from '../coolstore-products.service';
 import { ActivatedRoute } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 
 @Component({
@@ -22,21 +23,25 @@ export class ProductDetailComponent implements OnInit {
   productIdFromRoute:string;  
   currentProduct;
   isProductLiked = false;
+  testBrowser: boolean;
   
   constructor(coolStoreService:CoolStoreProductsService, cookieService: CookieService,
-    coolstoreCookiesService:CoolstoreCookiesService, cartService:CartService, private route: ActivatedRoute) {
+    coolstoreCookiesService:CoolstoreCookiesService, cartService:CartService, private route: ActivatedRoute, @Inject(PLATFORM_ID) platformId:string) {
     this.coolStoreService = coolStoreService;
     this.cartService = cartService;
     this.cookieService = cookieService;
     this.coolstoreCookiesService = coolstoreCookiesService;
+    this.testBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
     const routeParams = this.route.snapshot.paramMap;
+    console.log("routeParams", routeParams)
     this.productIdFromRoute = String(routeParams.get('itemId'));
     console.log("productIdFromRoute", this.productIdFromRoute)
-    this.getProductDetails();
-    //this.setupProductLikes();
+    if (this.testBrowser) {
+      this.getProductDetails();
+    }
   }
   
   getProductDetails() {

@@ -1,7 +1,7 @@
-<div class="alert alert-danger"  *ngIf="!coolstoreCookiesService.user.isUserLoggedIn && productsInCart.length > 0">
+<div class="alert alert-danger"  *ngIf="!loginService.isUserAuthenticated() && cart.length > 0">
   Please login to proceed with checkout.
 </div>
-<div class="container-fluid" *ngIf="productsInCart.length !== 0">
+<div class="container-fluid" *ngIf="cart.length !== 0">
   <div class="row">
     <div class="col-md-12">
       <div class="card">
@@ -27,23 +27,23 @@
                 </tr>
               </thead>
               <tbody class="table-striped">
-                <tr *ngFor="let product of productsInCart; let i = index">
+                <tr *ngFor="let cartItem of cart; let i = index">
                   <td scope="row">
-                    <img src="../../assets/images/{{product.itemId}}.jpg"  class="img-fluid mb-4 mr-3" style="width: 100px;"/>
-                    {{ product.name }}</td>
+                    <img src="../../assets/images/{{cartItem.itemId}}.jpg"  class="img-fluid mb-4 mr-3" style="width: 100px;"/>
+                    {{ cartItem.name }}</td>
                   <td scope="row">
-                    <i class="fa fa-minus" (click)="removeOneCount(product, i)"></i>&nbsp;
+                    <i class="fa fa-minus" (click)="removeOneCount(cartItem, i)"></i>&nbsp;
                     <span><input type="text" maxlength="3"
-                        style="width: 25px; text-align: center" [value]="product.orderQuantity" /></span>&nbsp;
-                    <i class="fa fa-plus" (click)="addOneCount(product, i)"></i>
+                        style="width: 25px; text-align: center" [value]="cartItem.quantity" /></span>&nbsp;
+                    <i class="fa fa-plus" (click)="addOneCount(cartItem, i)"></i>
                   </td>
-                  <td scope="row">{{ product.price | currency }}</td>
+                  <td scope="row">{{ cartItem.price | currency }}</td>
                   <td scope="row">
-                    {{ product.price * product.orderQuantity | currency }}
+                    {{ cartItem.price * cartItem.quantity | currency }}
                     &nbsp;&nbsp;
                   </td>
                   <td scope="row">
-                    <i class="fa fa-times" (click)="deleteProduct(product, i)"></i>
+                    <i class="fa fa-times" (click)="deleteCartItem(cartItem, i)"></i>
                   </td>
                 </tr>
                 <tr>
@@ -54,7 +54,7 @@
               </tbody>
             </table>
 
-        <div class="card"  *ngIf="coolstoreCookiesService.user.isUserLoggedIn">
+        <div class="card"  *ngIf="loginService.isUserAuthenticated()">
           <div class="card-body">
             <button
             type="button" class="btn btn-primary btn-block btn-lg checkout-btn" routerLink="/checkout">Proceed to Checkout</button>
@@ -67,7 +67,7 @@
   </div>
 </div>
 
-<span *ngIf="productsInCart.length === 0">
+<span *ngIf="cart.length === 0">
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
