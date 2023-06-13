@@ -182,23 +182,22 @@ export function app(): express.Express {
    server.post(ANGULR_API_PLACEORDER, (req, res) => {
     var url = API_TRACK_PLACEORDER; 
     console.log('SSR::::' + ANGULR_API_PLACEORDER+ ' invoked');
-    axios
-      .post(url, req.body)
-      .then(response => {
-        res.send(response.data);
-      })
-      .catch(
-        (reason: AxiosError<{additionalInfo:string}>) => {
-          /* if (reason.response!.status === 400) {
-            // Handle 400
-            res.send("error:reason.response!.status " + reason.response!.status);
-          } else {
-            res.send("error:reason.response!.status " + reason.response!.status);
-          }
- */          res.send(reason);
-          console.log("ANGULR_API_TRACKUSERACTIVITY AxiosError", reason.message)
-        }
-      );
+    var min = Math.ceil(100000);
+    var max = Math.floor(999999);
+    var order_id =  (Math.floor(Math.random() * (max - min + 1)) + min).toString();
+    var message = "{\"status\": \"CONFIRMED\", \"order_id\": \""+ order_id + "\"}";
+    res.send(message);
+    // axios
+    //   .post(url, req.body)
+    //   .then(response => {
+    //     res.send(response.data);
+    //   })
+    //   .catch(
+    //     (reason: AxiosError<{additionalInfo:string}>) => {
+    //       res.send(reason);
+    //       console.log("ANGULR_API_TRACKUSERACTIVITY AxiosError", reason.message)
+    //     }
+    //   );
   });
 
   
